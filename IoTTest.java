@@ -9,9 +9,28 @@
  *  @since 2021-04-19
  */
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
+import org.junit.runner.notification.Failure;
 
-public class IoTTest.java {
 
+public class IoTTest {
+
+    public static void main(String[] args) {
+        Result result = JUnitCore.runClasses(IoTTest.class);
+
+        for (Failure failure : result.getFailures()) {
+            System.out.println(failure.toString());
+        }
+
+        System.out.println(result.wasSuccessful());
+    }
+
+    @Test
+    public void test1() {
+      String str = "this is just a test";
+      assertEquals("this is just a test", str);
+   }
 }
