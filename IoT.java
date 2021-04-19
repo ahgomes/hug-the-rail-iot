@@ -17,6 +17,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.GroupLayout.*;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -67,9 +68,10 @@ public class IoT {
 	    return false;
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         IoT iot = new IoT();
 
+        iot.log.clear();
         iot.display.open();
         iot.currentState = State.LOGIN;
 
@@ -129,13 +131,13 @@ public class IoT {
 
 
         ////////////// TODO //////////////
-        // Log in state -> TLOG
-            // Change display to Log File
-            // Flush log file
-            // Display log file
-            // Log out
-        // Log in state -> STATION
-            // Change display to Dashboard
+        // Log in state -> TLOG                               x
+            // Change display to Log File                     x
+            // Flush log file                                 x
+            // Display log file                               x
+            // Log out                                        x
+        // Log in state -> STATION                            x
+            // Change display to Dashboard                    x
             // Start train state -> SAFE
             // Write to log operator id
             // Write log line
@@ -164,6 +166,8 @@ public class IoT {
         public Display() {
             frame = new JFrame("Hug The Rails IoT System");
             panel = new JPanel();
+            panel.setPreferredSize(new Dimension(800, 600));
+            panel.setLayout(new BorderLayout());
             panel.setBackground(Color.white);
         }
 
@@ -175,30 +179,38 @@ public class IoT {
             frame.setVisible(true);
         }
 
-        public JPanel createLoginPanel() {  // TODO make the login look nicer
+        public JPanel createLoginPanel() {
             loginP = new JPanel();
             loginP.setBorder(padding);
-            loginP.setLayout(new BoxLayout(loginP, BoxLayout.Y_AXIS));
 
             JLabel imgLabel = new JLabel(new ImageIcon("img/tracks.png"));
             JLabel title = new JLabel("Login");
             JLabel idLabel = new JLabel("Id");
-            JTextField idText = new JTextField(20);
+            idLabel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+            JTextField idText = new JTextField(1);
+            idText.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
             JLabel passLabel = new JLabel("Password");
-            JPasswordField passText = new JPasswordField(20);
+            passLabel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+            JPasswordField passText = new JPasswordField(2);
+            passText.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+            passText.setPreferredSize(new Dimension(1000, 24));
             JButton enter = new JButton("Login");
-            JLabel error = new JLabel("");
+            JLabel error = new JLabel("Welcome!! Login to access Hug The Rails IoT System.");
             enter.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     if (login(
                         idText.getText(),
                         String.valueOf(passText.getPassword()))
                     ) {
+                        log.open();
+                        log.hline();
+                        log.write("Login by " + idText.getText(), true);
                         panel.remove(loginP);
 
-                        if (currentState == State.TLOG)
+                        if (currentState == State.TLOG) {
+                            log.flush();
                             panel.add(createLogPanel());
-                        else panel.add(createDashboardPanel());
+                        } else panel.add(createDashboardPanel());
 
                         panel.revalidate();
                         panel.repaint();
@@ -209,6 +221,45 @@ public class IoT {
                     passText.setText("");
                 }
             });
+
+            GroupLayout layout = new GroupLayout(loginP);
+            loginP.setLayout(layout);
+            layout.setAutoCreateGaps(true);
+            layout.setAutoCreateContainerGaps(true);
+            layout.setHorizontalGroup(layout.createSequentialGroup()
+                .addGroup (
+                    layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+                    .addComponent(idLabel)
+                    .addComponent(passLabel)
+                )
+                .addGroup (
+                    layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+                    .addComponent(imgLabel)
+                    .addComponent(idText, 200, 300, 400)
+                    .addComponent(passText, 200, 300, 400)
+                    .addComponent(title)
+                    .addComponent(enter)
+                    .addComponent(error)
+                )
+            );
+
+            layout.setVerticalGroup(layout.createSequentialGroup()
+                .addComponent(imgLabel)
+                .addComponent(title)
+                .addGroup(
+                    layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                    .addComponent(idLabel)
+                    .addComponent(idText)
+                )
+                .addGroup(
+                    layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                    .addComponent(passLabel)
+                    .addComponent(passText)
+                )
+                .addComponent(enter)
+                .addComponent(error)
+            );
+
             loginP.add(imgLabel);
             loginP.add(title);
             loginP.add(idLabel);
@@ -226,6 +277,7 @@ public class IoT {
             dashP.setLayout(new BoxLayout(dashP, BoxLayout.Y_AXIS));
 
 	        JLabel title = new JLabel("Sensor Data");
+            JLabel state = new JLabel("State: " + currentState);
 	        JLabel weather = new JLabel("Weather/Precipitation");
             JLabel weatherData = new JLabel("");
 	        if (tsnr.weather.data == 0)
@@ -254,6 +306,7 @@ public class IoT {
             logout.addActionListener(logoutAction);
 
 	        dashP.add(title);
+            dashP.add(state);
             dashP.add(weather);
             dashP.add(weatherData);
             dashP.add(inclin);
@@ -303,6 +356,8 @@ public class IoT {
                     panel.remove(dashP);
                 }
 
+                log.hline();
+                log.close();
                 panel.add(createLoginPanel());
                 panel.revalidate();
                 panel.repaint();
@@ -380,11 +435,7 @@ public class IoT {
 
         public Log(String path) {
             this.path = path;
-            try {
-                bw = new BufferedWriter(new FileWriter(this.path, true));
-            } catch (IOException e) {
-                System.err.println("Error: Failed to open '" + this.path + "'.");
-            }
+            open();
         }
 
         public Log() {
@@ -408,22 +459,47 @@ public class IoT {
             }
         }
 
-        public void clear() throws IOException {
-            bw.close();
-            bw = new BufferedWriter(new FileWriter(this.path, false));
-            bw.append("");
+        public void clear() {
+            try {
+                bw.close();
+                bw = new BufferedWriter(new FileWriter(this.path, false));
+                bw.append("");
+            } catch (IOException e) {
+                System.err.println("Error: Unable to clear '" + this.path + "'.");
+            }
+
         }
 
-        public void close() throws IOException {
-            bw.close();
+        public void open() {
+            try {
+                bw = new BufferedWriter(new FileWriter(this.path, true));
+            } catch (IOException e) {
+                System.err.println("Error: Failed to open '" + this.path + "'.");
+            }
         }
 
-        public void flush() throws IOException {
-            bw.flush();
+        public void close() {
+            try {
+                bw.close();
+            } catch (IOException e) {
+                System.err.println("Error: Unable to close '" + this.path + "'.");
+            }
         }
 
-        public void hline() throws IOException {
-            bw.append("--------------------------------------------");
+        public void flush() {
+            try {
+                bw.flush();
+            } catch (IOException e) {
+                System.err.println("Error: Unable to flush '" + this.path + "'.");
+            }
+        }
+
+        public void hline() {
+            try {
+                bw.append("------------------------------------------------\n");
+            } catch (IOException e) {
+
+            }
         }
     }
 
