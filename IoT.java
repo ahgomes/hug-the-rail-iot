@@ -26,8 +26,8 @@ public class IoT {
     private Log log;
     private State currentState;
 
-    private String[] opCreds = {"operator", "password"};
-    private String[] techCreds = {"technician", "password"};
+    private String[] opCreds = {"o", "p"}; //{"operator", "password"};
+    private String[] techCreds = {"t", "p"};  //{"technician", "password"};
 
     public enum State {
         LOGIN,
@@ -159,6 +159,8 @@ public class IoT {
         JPanel tlogP;
         JPanel dashP;
 
+        Border padding = BorderFactory.createEmptyBorder(10,10,10,10);
+
         public Display() {
             frame = new JFrame("Hug The Rails IoT System");
             panel = new JPanel();
@@ -175,9 +177,7 @@ public class IoT {
 
         public JPanel createLoginPanel() {  // TODO make the login look nicer
             loginP = new JPanel();
-
-            Border paneEdge = BorderFactory.createEmptyBorder(10,10,10,10);
-            loginP.setBorder(paneEdge);
+            loginP.setBorder(padding);
             loginP.setLayout(new BoxLayout(loginP, BoxLayout.Y_AXIS));
 
             JLabel imgLabel = new JLabel(new ImageIcon("img/tracks.png"));
@@ -222,9 +222,7 @@ public class IoT {
 
         public JPanel createDashboardPanel() {
             dashP = new JPanel();
-
-            Border paneEdge = BorderFactory.createEmptyBorder(10,10,10,10);
-            dashP.setBorder(paneEdge);
+            dashP.setBorder(padding);
             dashP.setLayout(new BoxLayout(dashP, BoxLayout.Y_AXIS));
 
 	        JLabel title = new JLabel("Sensor Data");
@@ -252,6 +250,8 @@ public class IoT {
 		        triggerData.setText("False");
 	        else if (tsnr.weight.data == 1)
                 triggerData.setText("True");
+            JButton logout = new JButton("Logout");
+            logout.addActionListener(logoutAction);
 
 	        dashP.add(title);
             dashP.add(weather);
@@ -266,24 +266,50 @@ public class IoT {
             dashP.add(obstData);
             dashP.add(trigger);
             dashP.add(triggerData);
+            dashP.add(logout);
             return dashP;
         }
 
         public JPanel createLogPanel() {
             tlogP = new JPanel();
 
-            JTextArea logs = new JTextArea();
-            try {
-                FileReader reader = new FileReader("iot.log");
-                logs.read(reader, "iot.log");
-            } catch (IOException e) {
+            tlogP.setBorder(padding);
+            tlogP.setLayout(new BoxLayout(tlogP, BoxLayout.Y_AXIS));
 
+            JTextArea logArea = new JTextArea();
+            logArea.setBorder(padding);
+
+            try {
+                FileReader reader = new FileReader(log.path);
+                logArea.read(reader, log.path);
+            } catch (IOException e) {
+                logArea = new JTextArea("Error: Unable to load '" + log.path + "'.");
             }
 
+            JButton logout = new JButton("Logout");
+            logout.addActionListener(logoutAction);
 
+            tlogP.add(logArea);
+            tlogP.add(logout);
 
             return tlogP;
         }
+
+        public ActionListener logoutAction = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (currentState == State.TLOG) {
+                    panel.remove(tlogP);
+                } else {
+                    panel.remove(dashP);
+                }
+
+                panel.add(createLoginPanel());
+                panel.revalidate();
+                panel.repaint();
+
+                currentState = State.LOGIN;
+            }
+        };
     }
 
     class TSNR {
@@ -367,7 +393,7 @@ public class IoT {
 
         public String fmessage(String sysState, String sensorReport) {
             String spacedSR = String.join("\n  ", sensorReport.split(","));
-            return "System State: " + sysState + ".\nSensor Report: {\n  " + spacedSR + "\n}";
+            return "System State: " + sysState + "\nSensor Report: {\n  " + spacedSR + "\n}";
         }
 
         public void write(String msg, boolean istimed) {
