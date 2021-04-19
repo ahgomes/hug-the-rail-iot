@@ -25,12 +25,33 @@ public class IoTTest {
             System.out.println(failure.toString());
         }
 
-        System.out.println(result.wasSuccessful());
+        if (result.wasSuccessful())
+           System.out.println("All tests passed.");
     }
 
     @Test
     public void test1() {
-      String str = "this is just a test";
-      assertEquals("this is just a test", str);
-   }
+        IoT iot = new IoT();
+        assertFalse(iot.login("id", "pass"));
+        assertFalse(iot.login("id", "password"));
+        assertFalse(iot.login("operator", "pass"));
+        assertFalse(iot.login("technician", "pass"));
+        assertTrue(iot.login("operator", "password"));
+        assertTrue(iot.login("technician", "password"));
+    }
+
+    @Test
+    public void test2() {
+        IoT iot = new IoT();
+        iot.login("operator", "password");
+        assertEquals(iot.getCurrentState().toString(), "STATION");
+        iot = new IoT();
+        iot.login("technician", "password");
+        assertEquals(iot.getCurrentState().toString(), "TLOG");
+        iot = new IoT();
+        iot.login("tec", "password");
+        assertEquals(iot.getCurrentState().toString(), "LOGIN");
+    }
+
+    // TODO Add more test cases. Look at document requirements and use cases. I put some examples but idk if they match with document i didnt check.
 }
