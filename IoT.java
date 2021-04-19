@@ -17,6 +17,8 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class IoT {
     private Display display;
@@ -44,10 +46,80 @@ public class IoT {
         this.currentState = State.LOGIN;
     }
 
+    public boolean warning(){	
+	int weather = Integer.parseInt(iot.tsnr.get(0).data);
+	int inclin = Integer.parseInt(iot.tsnr.get(1).data);
+	int speed = Integer.parseInt(iot.tsnr.get(2).data);
+	int acc = Integer.parseInt(iot.tsnr.get(3).data);
+	int infrared = Integer.parseInt(iot.tsnr.get(4).data);
+
+	if(weather == 1 || inclin > 8 || speed == 1 || acc > 12 || infrared == 1){
+	    currentState = State.WARNING;
+	    return true;
+	}
+	currentState = State.SAFE;
+	return false;
+    }
+
     public static void main(String[] args) throws IOException {
         IoT iot = new IoT();
 
         iot.display.open();
+
+	//not entirely sure this is right?
+	currentState = State.TLOG;
+	iot.log.flush();
+	createLogPanel();
+
+	LocalTime time = LocalTime.now();
+	iot.log.write("Beginning of log: " + time + "\n");	
+	currentState = State.LOGIN;
+	createLoginPanel();
+	createDashboardPanel();
+	JLabel warning = new JLabel("");
+	String warningMessage = "";
+
+	currentState = State.SAFE;
+	Timer timer = new Timer();
+	timer.schedule(new TimerTask(){
+		@Override
+		public void update(){
+		    sensorData();
+		    createDashboardPanel();
+		    if(iot.tsnr.getData(5) = "1"){
+			triggerMessage = "Railroad crossing barrier has been triggered";
+			warning.setText(triggerMessage);
+			iot.log.write(triggerMessage, time);
+		    }
+		    
+		    //not sure if we wanna have a warning message specific to each sensor
+		    if(warning()){
+			warningMessage = "Detected unsafe conditions, decrease in speed recommended";
+			warning.setText(warningMessage);
+			iot.log.write(warningMessage, time);
+		    }
+		    if(iot.tsnr.getData(2) == "0" && iot.tsnr.getData(3) = "0")
+			currentState = State.STATION;
+		}
+	    }, 0, 1000);
+
+	//also double check pls
+	if(currentState = State.STATION){
+	    timer.cancel();
+	    iot.log.write("Train stopped", time);
+	    module.addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+			if (JOptionPane.showConfirmDialog(module, "Are you sure you want to close this window?", "Close Window?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+			    iot.log.close();
+			    currentState = State.LOGIN;
+			    createLoginPanel();			    
+			}
+		    }
+		});
+	}
+    }
+	    
 
         ////////////// TODO //////////////
         // Log in state -> TLOG
@@ -146,35 +218,81 @@ public class IoT {
         public JPanel createDashboardPanel() {
             dashP = new JPanel();
 
-            // TODO
+	    Border paneEdge = BorderFactory.createEmptyBorder(10,10,10,10);
+            loginP.setBorder(paneEdge);
+            loginP.setLayout(new BoxLayout(loginP, BoxLayout.Y_AXIS));
 
+	    JLabel title = new JLabel("Sensor Data");
+	    JLabel weather = new JLabel("Weather/Precipitation");
+            JLabel weatherData = new JLabel("");
+	    if(this.tsnr.get(0).data = "0")
+		weatherData.setText("False");
+	    else if(this.tsnr.get(0).data = "1")
+		weatherData.setText("True");
+	    JLabel inclin = new JLabel("Inclination");
+            JLabel inclinData = new JLabel(this.tsnr.get(1).data);
+	    JLabel speed = new JLabel("Speed");
+            JLabel speedData = new JLabel(this.tsnr.get(2).data);
+	    JLabel acc = new JLabel("Acceleration");
+            JLabel accData = new JLabel(this.tsnr.get(3).data);
+	    JLabel obst = new JLabel("Current Obstacles");
+	    JLabel obstData = new JLabel("");
+            if(this.tsnr.get(4).data = "0")
+		obstData.setText("False");
+	    else if(this.tsnr.get(4).data = "1")
+		obstData.setText("True");
+	    JLabel trigger = new JLabel("Barrier Triggered");
+	    JLabel triggerData = new JLabel("");
+	    if(this.tsnr.get(5).data = "0")
+		triggerData.setText("False");
+	    else if(this.tsnr.get(5).data = "1")
+		triggerData.setText("True");
+
+	    dashP.add(title);
+	    dashP.add(weather);
+	    dashP.add(weatherData);
+	    dashP.add(inclin);
+	    dashP.add(inclinData);
+	    dashP.add(speed);
+	    dashP.add(speedData);
+	    dashP.add(acc);
+	    dashP.add(accData);
+	    dashP.add(obst);
+	    dashP.add(obstData);
+	    dashP.add(trigger);
+	    dashP.add(triggerData);
             return dashP;
         }
 
         public JPanel createLogPanel() {
             tlogP = new JPanel();
-
-            // TODO
-
-            /*JTextArea logs = new JTextArea();
+	    
+            JTextArea logs = new JTextArea();
             FileReader reader = new FileReader("iot.log");
-            logs.read(reader, "iot.log");*/
+            logs.read(reader, "iot.log");
 
             return tlogP;
-        }
-
-        public void update() {
-            // TODO
         }
     }
 
     class TSNR {
         private ArrayList<Sensor> sensors;
+	private Sensor weather;
+	private Sensor inclinometer;
+	private Sensor speed;
+	private Sensor accelerometer;
+	private Sensor infrared;
+	private Sensor weight;
 
         public TSNR() {
             sensors = new ArrayList<Sensor>();
 
-            // TODO add sensors
+            sensors.add(weather);
+	    sensors.add(inclinometer);
+	    sensors.add(speed);
+	    sensors.add(accelerometer);
+	    sensors.add(infrared);
+	    sensors.add(weight);
         }
 
         public String getSensorReport() {
@@ -186,12 +304,12 @@ public class IoT {
             return report;
         }
 
-        // TODO Process sensor data
+	public ArrayList<Sensor> sensorData(){
+	    return sensors;
+	}
 
     }
 
-
-    // TODO I'm not sure how we should set up Sensor class
     class Sensor {
         private String name;
         private String data;
@@ -201,7 +319,7 @@ public class IoT {
         public Sensor(String name) {
             this.name = name;
             this.state = State.SAFE;
-            this.data = "";
+            this.data = 0;
             this.issue = "";
         }
 
@@ -285,6 +403,29 @@ public class IoT {
     public State getCurrentState() {
         return this.currentState;
     }
+    public String get_weather(){
+	return this.tsnr.get(0).data;
+    }
 
-    // TODO add getters for testing
+    public String get_inclination(){
+	return this.tsnr.get(1).data;
+    }
+
+    public String get_speed(){
+	return this.tsnr.get(2).data;
+    }
+
+    public String get_acceleration(){
+	return this.tsnr.get(3).data;
+    }
+
+    public String get_obstacle(){
+	return this.tsnr.get(4).data;
+    }
+
+    public String get_track_trigger(){
+	return this.tsnr.get(5).data;
+    }
+
 }
+
