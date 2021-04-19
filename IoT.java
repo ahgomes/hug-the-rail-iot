@@ -46,80 +46,87 @@ public class IoT {
         this.currentState = State.LOGIN;
     }
 
-    public boolean warning(){	
-	int weather = Integer.parseInt(iot.tsnr.get(0).data);
-	int inclin = Integer.parseInt(iot.tsnr.get(1).data);
-	int speed = Integer.parseInt(iot.tsnr.get(2).data);
-	int acc = Integer.parseInt(iot.tsnr.get(3).data);
-	int infrared = Integer.parseInt(iot.tsnr.get(4).data);
+    public boolean warning() {
+    	int weather = tsnr.weather.data;
+    	int inclin = tsnr.inclinometer.data;
+    	int speed = tsnr.speed.data;
+    	int acc = tsnr.accelerometer.data;
+    	int infrared = tsnr.infrared.data;
 
-	if(weather == 1 || inclin > 8 || speed == 1 || acc > 12 || infrared == 1){
-	    currentState = State.WARNING;
-	    return true;
-	}
-	currentState = State.SAFE;
-	return false;
+    	if (
+            weather == 1
+            || inclin > 8
+            || speed == 1
+            || acc > 12
+            || infrared == 1
+        ) {
+    	    currentState = State.WARNING;
+    	    return true;
+    	}
+	    currentState = State.SAFE;
+	    return false;
     }
 
     public static void main(String[] args) throws IOException {
         IoT iot = new IoT();
 
         iot.display.open();
+        iot.currentState = State.LOGIN;
 
-	//not entirely sure this is right?
-	currentState = State.TLOG;
-	iot.log.flush();
-	createLogPanel();
+    	//not entirely sure this is right?
+    	//currentState = State.TLOG;
+    	//iot.log.flush();
+    	//createLogPanel();
 
-	LocalTime time = LocalTime.now();
-	iot.log.write("Beginning of log: " + time + "\n");	
-	currentState = State.LOGIN;
-	createLoginPanel();
-	createDashboardPanel();
-	JLabel warning = new JLabel("");
-	String warningMessage = "";
+    	//LocalTime time = LocalTime.now();
+    	//iot.log.write("Beginning of log: " + time + "\n", false);
 
-	currentState = State.SAFE;
-	Timer timer = new Timer();
-	timer.schedule(new TimerTask(){
-		@Override
-		public void update(){
-		    sensorData();
-		    createDashboardPanel();
-		    if(iot.tsnr.getData(5) = "1"){
-			triggerMessage = "Railroad crossing barrier has been triggered";
-			warning.setText(triggerMessage);
-			iot.log.write(triggerMessage, time);
-		    }
-		    
-		    //not sure if we wanna have a warning message specific to each sensor
-		    if(warning()){
-			warningMessage = "Detected unsafe conditions, decrease in speed recommended";
-			warning.setText(warningMessage);
-			iot.log.write(warningMessage, time);
-		    }
-		    if(iot.tsnr.getData(2) == "0" && iot.tsnr.getData(3) = "0")
-			currentState = State.STATION;
-		}
-	    }, 0, 1000);
+    	//createLoginPanel();
+    	//createDashboardPanel();
+    	//JLabel warning = new JLabel("");
+    	//String warningMessage = "";
 
-	//also double check pls
-	if(currentState = State.STATION){
-	    timer.cancel();
-	    iot.log.write("Train stopped", time);
-	    module.addWindowListener(new java.awt.event.WindowAdapter() {
-		    @Override
-		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-			if (JOptionPane.showConfirmDialog(module, "Are you sure you want to close this window?", "Close Window?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-			    iot.log.close();
-			    currentState = State.LOGIN;
-			    createLoginPanel();			    
-			}
-		    }
-		});
-	}
-    }
-	    
+    	/*currentState = State.SAFE;
+    	Timer timer = new Timer();
+    	timer.schedule(new TimerTask(){
+    		@Override
+    		public void update(){
+    		    sensorData();
+    		    createDashboardPanel();
+    		    if(iot.tsnr.getData(5) = "1"){
+    			triggerMessage = "Railroad crossing barrier has been triggered";
+    			warning.setText(triggerMessage);
+    			iot.log.write(triggerMessage, true);
+    		    }
+
+    		    //not sure if we wanna have a warning message specific to each sensor
+    		    if(warning()){
+    			warningMessage = "Detected unsafe conditions, decrease in speed recommended";
+    			warning.setText(warningMessage);
+    			iot.log.write(warningMessage, true);
+    		    }
+    		    if(iot.tsnr.getData(2) == "0" && iot.tsnr.getData(3) = "0")
+    			currentState = State.STATION;
+    		}
+    	    }, 0, 1000);
+
+    	//also double check pls
+    	if(currentState = State.STATION){
+    	    timer.cancel();
+    	    iot.log.write("Train stopped", true);
+    	    module.addWindowListener(new java.awt.event.WindowAdapter() {
+    		    @Override
+    		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+    			if (JOptionPane.showConfirmDialog(module, "Are you sure you want to close this window?", "Close Window?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+    			    iot.log.close();
+    			    currentState = State.LOGIN;
+    			    createLoginPanel();
+    			}
+    		    }
+    		});
+    	   }*/
+        }
+
 
         ////////////// TODO //////////////
         // Log in state -> TLOG
@@ -144,8 +151,6 @@ public class IoT {
             // Close log file
             // Log out
             // Change Display to Login
-
-    }
 
     class Display {
         JFrame frame;
@@ -218,58 +223,64 @@ public class IoT {
         public JPanel createDashboardPanel() {
             dashP = new JPanel();
 
-	    Border paneEdge = BorderFactory.createEmptyBorder(10,10,10,10);
-            loginP.setBorder(paneEdge);
-            loginP.setLayout(new BoxLayout(loginP, BoxLayout.Y_AXIS));
+            Border paneEdge = BorderFactory.createEmptyBorder(10,10,10,10);
+            dashP.setBorder(paneEdge);
+            dashP.setLayout(new BoxLayout(dashP, BoxLayout.Y_AXIS));
 
-	    JLabel title = new JLabel("Sensor Data");
-	    JLabel weather = new JLabel("Weather/Precipitation");
+	        JLabel title = new JLabel("Sensor Data");
+	        JLabel weather = new JLabel("Weather/Precipitation");
             JLabel weatherData = new JLabel("");
-	    if(this.tsnr.get(0).data = "0")
-		weatherData.setText("False");
-	    else if(this.tsnr.get(0).data = "1")
-		weatherData.setText("True");
-	    JLabel inclin = new JLabel("Inclination");
-            JLabel inclinData = new JLabel(this.tsnr.get(1).data);
-	    JLabel speed = new JLabel("Speed");
-            JLabel speedData = new JLabel(this.tsnr.get(2).data);
-	    JLabel acc = new JLabel("Acceleration");
-            JLabel accData = new JLabel(this.tsnr.get(3).data);
-	    JLabel obst = new JLabel("Current Obstacles");
-	    JLabel obstData = new JLabel("");
-            if(this.tsnr.get(4).data = "0")
-		obstData.setText("False");
-	    else if(this.tsnr.get(4).data = "1")
-		obstData.setText("True");
-	    JLabel trigger = new JLabel("Barrier Triggered");
-	    JLabel triggerData = new JLabel("");
-	    if(this.tsnr.get(5).data = "0")
-		triggerData.setText("False");
-	    else if(this.tsnr.get(5).data = "1")
-		triggerData.setText("True");
+	        if (tsnr.weather.data == 0)
+                weatherData.setText("False");
+	        else if (tsnr.weather.data == 1)
+                weatherData.setText("True");
+	        JLabel inclin = new JLabel("Inclination");
+            JLabel inclinData = new JLabel(String.valueOf(tsnr.inclinometer.data));
+	        JLabel speed = new JLabel("Speed");
+            JLabel speedData = new JLabel(String.valueOf(tsnr.speed.data));
+	        JLabel acc = new JLabel("Acceleration");
+            JLabel accData = new JLabel(String.valueOf(tsnr.accelerometer.data));
+	        JLabel obst = new JLabel("Current Obstacles");
+	        JLabel obstData = new JLabel("");
+            if(tsnr.infrared.data == 0)
+                obstData.setText("False");
+	        else if(tsnr.infrared.data == 1)
+                obstData.setText("True");
+	        JLabel trigger = new JLabel("Barrier Triggered");
+	        JLabel triggerData = new JLabel("");
+	        if (tsnr.weight.data == 0)
+		        triggerData.setText("False");
+	        else if (tsnr.weight.data == 1)
+                triggerData.setText("True");
 
-	    dashP.add(title);
-	    dashP.add(weather);
-	    dashP.add(weatherData);
-	    dashP.add(inclin);
-	    dashP.add(inclinData);
-	    dashP.add(speed);
-	    dashP.add(speedData);
-	    dashP.add(acc);
-	    dashP.add(accData);
-	    dashP.add(obst);
-	    dashP.add(obstData);
-	    dashP.add(trigger);
-	    dashP.add(triggerData);
+	        dashP.add(title);
+            dashP.add(weather);
+            dashP.add(weatherData);
+            dashP.add(inclin);
+            dashP.add(inclinData);
+            dashP.add(speed);
+            dashP.add(speedData);
+            dashP.add(acc);
+            dashP.add(accData);
+            dashP.add(obst);
+            dashP.add(obstData);
+            dashP.add(trigger);
+            dashP.add(triggerData);
             return dashP;
         }
 
         public JPanel createLogPanel() {
             tlogP = new JPanel();
-	    
+
             JTextArea logs = new JTextArea();
-            FileReader reader = new FileReader("iot.log");
-            logs.read(reader, "iot.log");
+            try {
+                FileReader reader = new FileReader("iot.log");
+                logs.read(reader, "iot.log");
+            } catch (IOException e) {
+
+            }
+
+
 
             return tlogP;
         }
@@ -277,22 +288,27 @@ public class IoT {
 
     class TSNR {
         private ArrayList<Sensor> sensors;
-	private Sensor weather;
-	private Sensor inclinometer;
-	private Sensor speed;
-	private Sensor accelerometer;
-	private Sensor infrared;
-	private Sensor weight;
+        private Sensor weather;
+	    private Sensor inclinometer;
+	    private Sensor speed;
+	    private Sensor accelerometer;
+	    private Sensor infrared;
+	    private Sensor weight;
 
         public TSNR() {
             sensors = new ArrayList<Sensor>();
-
+            weather = new Sensor("Weather");
+            inclinometer = new Sensor("Inclinometer");
+            speed = new Sensor("Speed");
+            accelerometer = new Sensor("Accelerometer");
+            infrared = new Sensor("Infrared");
+            weight = new Sensor("Weight");
             sensors.add(weather);
-	    sensors.add(inclinometer);
-	    sensors.add(speed);
-	    sensors.add(accelerometer);
-	    sensors.add(infrared);
-	    sensors.add(weight);
+            sensors.add(inclinometer);
+            sensors.add(speed);
+            sensors.add(accelerometer);
+            sensors.add(infrared);
+            sensors.add(weight);
         }
 
         public String getSensorReport() {
@@ -304,15 +320,15 @@ public class IoT {
             return report;
         }
 
-	public ArrayList<Sensor> sensorData(){
-	    return sensors;
-	}
+	    /*public ArrayList<Sensor> sensorData() {
+            return sensors;
+	    }*/
 
     }
 
     class Sensor {
         private String name;
-        private String data;
+        private int data;
         private String issue;
         private State state;
 
@@ -354,9 +370,10 @@ public class IoT {
             return "System State: " + sysState + ".\nSensor Report: {\n  " + spacedSR + "\n}";
         }
 
-        public void write(String msg, boolean timed) {
+        public void write(String msg, boolean istimed) {
             String start = "";
-            if (timed) start = LocalDateTime.now().format(formatter)+"\t\t:: ";
+            if (istimed)
+                start = LocalDateTime.now().format(formatter)+"\t\t:: ";
 
             try {
                 bw.append(start).append(msg).append("\n");
@@ -384,7 +401,7 @@ public class IoT {
         }
     }
 
-    private int checkCreds(String[] creds) {
+    protected int checkCreds(String[] creds) {
         if (creds[0].equals(techCreds[0]) && creds[1].equals(techCreds[1]))
             return 0;
         if (creds[0].equals(opCreds[0]) && creds[1].equals(opCreds[1]))
@@ -403,29 +420,25 @@ public class IoT {
     public State getCurrentState() {
         return this.currentState;
     }
-    public String get_weather(){
-	return this.tsnr.get(0).data;
+
+    public int getWeatherData() {
+        return this.tsnr.weather.data;
     }
 
-    public String get_inclination(){
-	return this.tsnr.get(1).data;
+    public int getInclinationData() {
+        return this.tsnr.inclinometer.data;
     }
 
-    public String get_speed(){
-	return this.tsnr.get(2).data;
+    public int getSpeedData() {
+        return this.tsnr.speed.data;
     }
 
-    public String get_acceleration(){
-	return this.tsnr.get(3).data;
+    public int getAccelerationData() {
+        return this.tsnr.accelerometer.data;
     }
 
-    public String get_obstacle(){
-	return this.tsnr.get(4).data;
-    }
-
-    public String get_track_trigger(){
-	return this.tsnr.get(5).data;
+    public int getInfraredData() {
+        return this.tsnr.infrared.data;
     }
 
 }
-
