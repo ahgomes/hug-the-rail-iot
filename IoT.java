@@ -11,15 +11,22 @@
 
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.Timer;
+
 import java.io.*;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.GroupLayout.*;
+import javax.swing.Timer;
+import javax.swing.text.html.*;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 
 public class IoT {
     private Display display;
@@ -85,269 +92,229 @@ public class IoT {
         iot.currentState = State.LOGIN;
     }
 
-
-        ////////////// TODO //////////////
-        // Log in state -> TLOG                               x
-            // Change display to Log File                     x
-            // Flush log file                                 x
-            // Display log file                               x
-            // Log out                                        x
-        // Log in state -> STATION                            x
-            // Change display to Dashboard                    x
-            // Start train state -> SAFE
-            // Write to log operator id
-            // Write log line
-            // Send simulation info to sensors
-            // Process sensor data in TSNR
-            // Get info from TSNR
-            // Update & Display state/data
-            // State -> WARNING || DANGER
-                // Add to log
-            // Stop train
-            // If no warning/danger -> Log write "safe run"
-            // else -> why stopped CRASH or STATION
-            // Close log file
-            // Log out
-            // Change Display to Login
-
     class Display {
-        JFrame frame;
-        JPanel panel;
-        JPanel loginP;
-        JPanel tlogP;
-        JPanel dashP;
-        ArrayList<JLabel> dataLabels;
-        JLabel collectLabel;
-
-        Border padding = BorderFactory.createEmptyBorder(10,10,10,10);
+        private JFrame frame;
 
         public Display() {
-            frame = new JFrame("Hug The Rails IoT System");
-            panel = new JPanel();
-            panel.setPreferredSize(new Dimension(800, 600));
-            panel.setLayout(new BorderLayout());
-            panel.setBackground(Color.white);
-
-            dataLabels = new ArrayList<JLabel>();
-            collectLabel = new JLabel();
+            frame = new JFrame("HRT IoT System");
         }
 
         public void open() {
-            panel.add(createLoginPanel());
-            frame.add(panel);
-            frame.setSize(800, 600);
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setVisible(true);
+            int width = 800, height = 600;
+    		frame.setSize(width, height);
+            frame.setResizable(false);
+    		frame.add(new Window(width, height));
+    		frame.setVisible(true);
+    		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         }
 
-        public void update() {
-            // TODO
-        }
+        class Window extends JPanel implements ActionListener {
+            private Timer timer;
+            private Window mainPanel;
+            private JTextPane loginPane;
+            private JTextPane dashPane;
+            private JPanel logPanel;
 
-        public JPanel createLoginPanel() {
-            loginP = new JPanel();
-            loginP.setBorder(padding);
+            public Window(int width, int height) {
+                mainPanel = this;
+                setSize(width, height);
+                setBackground(Color.WHITE);
+                setFocusable(true);
+                timer = new Timer(100, this);
+                timer.start();
+                loginPane = createLoginPane();
+                this.add(loginPane);
+            }
 
-            JLabel imgLabel = new JLabel(new ImageIcon("img/tracks.png"));
-            JLabel title = new JLabel("Login");
-            JLabel idLabel = new JLabel("Id");
-            idLabel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-            JTextField idText = new JTextField(1);
-            idText.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-            JLabel passLabel = new JLabel("Password");
-            passLabel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-            JPasswordField passText = new JPasswordField(2);
-            passText.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-            passText.setPreferredSize(new Dimension(1000, 24));
-            JButton enter = new JButton("Login");
-            JLabel error = new JLabel("Welcome!! Login to access Hug The Rails IoT System.");
-            enter.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    if (login(
-                        idText.getText(),
-                        String.valueOf(passText.getPassword()))
-                    ) {
-                        log.open();
-                        log.hline();
-                        log.write("Login by " + idText.getText(), true);
-                        panel.remove(loginP);
+            public void paintComponent(Graphics g) {
+                super.paintComponent(g);
 
-                        if (currentState == State.TLOG) {
-                            log.flush();
-                            panel.add(createLogPanel());
-                        } else panel.add(createDashboardPanel());
+                if (currentState == State.LOGIN) {
 
-                        panel.revalidate();
-                        panel.repaint();
 
-                        /*SwingUtilities.invokeLater(new Runnable() {
-                            public void run() {
-                                if (currentState == State.TLOG) return;
-                                tsnr.collect();
+                }
+
+                if (currentState == State.WARNING) {
+                    System.out.println(currentState);
+                }
+
+                if (currentState == State.DANGER) {
+                    System.out.println(currentState);
+                }
+            }
+
+            @Override
+        	public void actionPerformed(ActionEvent e) {
+        		Object source = e.getSource();
+
+        		// if (source == timer)
+        		// 	... update
+
+                // ... collect ??
+
+        		repaint();
+
+        	}
+
+            public JTextPane createLoginPane() {
+                JTextPane textPane = new JTextPane();
+                textPane.setContentType("text/html");
+                textPane.setEditable(false);
+
+                String imgsrc = this.getClass().getClassLoader()
+                    .getResource("img/tracks.png").toString();
+
+                String[] html = {""
+                  + "<html>"
+                    + "<head>"
+                    + "<style>"
+                      + "body {"
+                        + "width: 650px; height: 500px;"
+                        + "background: #fff; color: #000;"
+                        + "padding: 100px;"
+                        + "box-sizing: border-box;"
+                        + "}"
+                    + "</style>"
+                    + "</head>"
+                    + "<body>"
+                    + "<img src=\"" + imgsrc +"\">"
+                    + "<form action=\"#\">"
+                      + "<label for=\"id\">Id:</label><br>"
+                      + "<input type=\"text\" name=\"id\"><br>"
+                      + "<label for=\"pass\">Password:</label><br>"
+                      + "<input type=\"password\" name=\"pass\">"
+                      + "<input type=\"submit\" value=\"Log In\">"
+                    + "</form>"
+                    + "<span>", "" ,"</span>"
+                    + "</body>"
+                  + "</html>"
+                };
+
+                textPane.setText(String.join("", html));
+
+                HTMLEditorKit kit = (HTMLEditorKit)textPane.getEditorKit();
+                kit.setAutoFormSubmission(false);
+                textPane.addHyperlinkListener(new HyperlinkListener() {
+                    @Override
+                        public void hyperlinkUpdate(HyperlinkEvent e) {
+                            if (e instanceof FormSubmitEvent) {
+                                String data = ((FormSubmitEvent)e).getData();
+                                String[] creds = data.split("[=&]");
+                                if (login(creds[1], creds[3])) {
+                                    log.open();
+                                    log.hline();
+                                    log.write("Login by " + creds[1], true);
+                                    mainPanel.remove(loginPane);
+                                    if (currentState == State.TLOG) {
+                                        log.flush();
+                                        logPanel = createLogPanel();
+                                        mainPanel.add(logPanel);
+                                        mainPanel.revalidate();
+                                    } else {
+                                        dashPane = createDashboardPane();
+                                        mainPanel.add(dashPane);
+                                    }
+                                } else {
+                                    html[1] = "Unable to log in. Invalid Id or Password.";
+                                    textPane.setText(String.join("", html));
+                                }
                             }
-                        });*/
-                        return;
+                        }
+                });
+
+                return textPane;
+            } // endof createLoginPane
+
+            public JTextPane createDashboardPane() {
+                JTextPane textPane = new JTextPane();
+                textPane.setContentType("text/html");
+                textPane.setEditable(false);
+
+                String[] html = {""
+                  + "<html>"
+                    + "<head>"
+                    + "<style>"
+                      + "body {"
+                        + "width: 650px; height: 500px;"
+                        + "background: #fff; color: #000;"
+                        + "padding: 100px;"
+                        + "box-sizing: border-box;"
+                        + "}"
+                    + "</style>"
+                    + "</head>"
+                    + "<body>"
+                      + "<h1>HELLO</ht>"
+                    + "</body>"
+                  + "</html>"
+                };
+
+                textPane.setText(String.join("", html));
+
+                return textPane;
+
+            } // endof createDashboardPane
+
+            public JPanel createLogPanel() {
+                JPanel panel = new JPanel();
+                panel.setBackground(Color.WHITE);
+                panel.setSize(800, 600);
+                panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+
+                JTextArea logArea = new JTextArea();
+                try {
+                    FileReader reader = new FileReader(log.path);
+                    logArea.read(reader, log.path);
+                } catch (IOException e) {
+                    logArea = new JTextArea("Error: Unable to load '" + log.path + "'.");
+                }
+
+                JScrollPane scrollPane = new JScrollPane(logArea);
+                scrollPane.setBackground(Color.YELLOW);
+                scrollPane.setVerticalScrollBarPolicy(
+                    JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+                scrollPane.setPreferredSize(new Dimension(800, 500));
+                scrollPane.setBorder(
+                    BorderFactory.createCompoundBorder(
+                      BorderFactory.createCompoundBorder(
+                        BorderFactory.createTitledBorder("Log"),
+                        BorderFactory.createEmptyBorder(10, 10, 10, 10)
+                      ),
+                    scrollPane.getBorder())
+                );
+
+                JButton logout = new JButton("Logout");
+                logout.addActionListener(logoutAction);
+
+                panel.add(scrollPane);
+                panel.add(Box.createRigidArea(new Dimension(0,10)));
+                panel.add(logout);
+
+                return panel;
+
+            } // endof createLogPanel
+
+            public ActionListener logoutAction = new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    if (currentState == State.TLOG) {
+                        mainPanel.remove(logPanel);
+                    } else {
+                        mainPanel.remove(dashPane);
                     }
-                    error.setText("Unable to login. Id or Password is incorrect.");
-                    idText.setText("");
-                    passText.setText("");
+
+                    log.hline();
+                    log.close();
+                    loginPane = createLoginPane();
+                    mainPanel.add(loginPane);
+                    mainPanel.revalidate();
+
+                    currentState = State.LOGIN;
                 }
-            });
+            };
 
-            GroupLayout layout = new GroupLayout(loginP);
-            loginP.setLayout(layout);
-            layout.setAutoCreateGaps(true);
-            layout.setAutoCreateContainerGaps(true);
-            layout.setHorizontalGroup(layout.createSequentialGroup()
-                .addGroup (
-                    layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-                    .addComponent(idLabel)
-                    .addComponent(passLabel)
-                )
-                .addGroup (
-                    layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                    .addComponent(imgLabel)
-                    .addComponent(idText, 200, 300, 400)
-                    .addComponent(passText, 200, 300, 400)
-                    .addComponent(title)
-                    .addComponent(enter)
-                    .addComponent(error)
-                )
-            );
+        } // endof Window
+    } // endof Display
 
-            layout.setVerticalGroup(layout.createSequentialGroup()
-                .addComponent(imgLabel)
-                .addComponent(title)
-                .addGroup(
-                    layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(idLabel)
-                    .addComponent(idText)
-                )
-                .addGroup(
-                    layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(passLabel)
-                    .addComponent(passText)
-                )
-                .addComponent(enter)
-                .addComponent(error)
-            );
-
-            loginP.add(imgLabel);
-            loginP.add(title);
-            loginP.add(idLabel);
-            loginP.add(idText);
-            loginP.add(passLabel);
-            loginP.add(passText);
-            loginP.add(enter);
-            loginP.add(error);
-            return loginP;
-        }
-
-        public JPanel createDashboardPanel() {
-            dashP = new JPanel();
-            dashP.setBorder(padding);
-            dashP.setLayout(new BoxLayout(dashP, BoxLayout.Y_AXIS));
-
-            JLabel state = new JLabel("State: " + currentState);
-	        JLabel title = new JLabel("Sensor Data");
-	        JLabel weather = new JLabel("Weather/Precipitation");
-            JLabel weatherData = new JLabel("");
-            dataLabels.add(weatherData);
-	        if (tsnr.weather.data == "0")
-                weatherData.setText("False");
-	        else if (tsnr.weather.data == "1")
-                weatherData.setText("True");
-	        JLabel inclin = new JLabel("Inclination");
-            JLabel inclinData = new JLabel(tsnr.inclinometer.data);
-            dataLabels.add(inclinData);
-	        JLabel speedL = new JLabel("Speed");
-            JLabel speedData = new JLabel(tsnr.speedS.data);
-            dataLabels.add(speedData);
-	        JLabel acc = new JLabel("Acceleration");
-            JLabel accData = new JLabel(tsnr.accelerometer.data);
-            dataLabels.add(accData);
-	        JLabel obst = new JLabel("Current Obstacles");
-	        JLabel obstData = new JLabel("");
-            dataLabels.add(obstData);
-            if(tsnr.infrared.data == "0")
-                obstData.setText("False");
-	        else if(tsnr.infrared.data == "1")
-                obstData.setText("True");
-	        JLabel trigger = new JLabel("Barrier Triggered");
-	        JLabel triggerData = new JLabel("");
-            dataLabels.add(triggerData);
-	        if (tsnr.weight.data == "0")
-		        triggerData.setText("False");
-	        else if (tsnr.weight.data == "1")
-                triggerData.setText("True");
-            JButton logout = new JButton("Logout");
-            logout.addActionListener(logoutAction);
-            JLabel collectLabel = new JLabel("Collecting sensor data ...");
-
-            dashP.add(state);
-	        dashP.add(title);
-            dashP.add(weather);
-            dashP.add(weatherData);
-            dashP.add(inclin);
-            dashP.add(inclinData);
-            dashP.add(speedL);
-            dashP.add(speedData);
-            dashP.add(acc);
-            dashP.add(accData);
-            dashP.add(obst);
-            dashP.add(obstData);
-            dashP.add(trigger);
-            dashP.add(triggerData);
-            dashP.add(logout);
-            dashP.add(collectLabel);
-            return dashP;
-        }
-
-        public JPanel createLogPanel() {
-            tlogP = new JPanel();
-
-            tlogP.setBorder(padding);
-            tlogP.setLayout(new BoxLayout(tlogP, BoxLayout.Y_AXIS));
-
-            JTextArea logArea = new JTextArea();
-            logArea.setBorder(padding);
-
-            try {
-                FileReader reader = new FileReader(log.path);
-                logArea.read(reader, log.path);
-            } catch (IOException e) {
-                logArea = new JTextArea("Error: Unable to load '" + log.path + "'.");
-            }
-
-            JButton logout = new JButton("Logout");
-            logout.addActionListener(logoutAction);
-
-            tlogP.add(logArea);
-            tlogP.add(logout);
-
-            return tlogP;
-        }
-
-        public ActionListener logoutAction = new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (currentState == State.TLOG) {
-                    panel.remove(tlogP);
-                } else {
-                    panel.remove(dashP);
-                }
-
-                log.hline();
-                log.close();
-                panel.add(createLoginPanel());
-                panel.revalidate();
-                panel.repaint();
-
-                currentState = State.LOGIN;
-            }
-        };
-    }
-
-    class TSNR {
+    class TSNR { // FIXME might not need map if have id
         private HashMap<String, Sensor> sensors;
         private Sensor weather;
 	    private Sensor inclinometer;
@@ -357,13 +324,14 @@ public class IoT {
 	    private Sensor weight;
 
         public TSNR() {
+            int id = 1;
             sensors = new HashMap<String, Sensor>();
-            weather = new Sensor("Weather");
-            inclinometer = new Sensor("Inclinometer");
-            speedS = new Sensor("Speed");
-            accelerometer = new Sensor("Accelerometer");
-            infrared = new Sensor("Infrared");
-            weight = new Sensor("Weight");
+            weather = new Sensor("Weather", id++);
+            inclinometer = new Sensor("Inclinometer", id++);
+            speedS = new Sensor("Speed", id++);
+            accelerometer = new Sensor("Accelerometer", id++);
+            infrared = new Sensor("Infrared", id++);
+            weight = new Sensor("Weight", id++);
             sensors.put(weather.name, weather);
             sensors.put(inclinometer.name, inclinometer);
             sensors.put(speedS.name, speedS);
@@ -381,38 +349,13 @@ public class IoT {
 
         public void collect() { // FIXME: Needs to set up data for update()
             if (currentState == State.LOGIN) return;
-            //System.out.print("Sensor Data -> ");
-            display.collectLabel.setText("Collecting sensor data...");
 
-            String str = "";
-            /*try {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-                str = reader.readLine();
-            } catch (IOException e) {
-
-            }*/
-
-            parse(str);
-            display.update();
-            display.panel.revalidate();
-            display.panel.repaint();
-
-            /*Timer timer = new Timer();
-        	timer.schedule(new TimerTask(){
-        		public void run(){
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            if (currentState == State.TLOG) return;
-                            tsnr.collect();
-                        }
-                    });
-        		}
-        	}, 1, 500);*/
+            // .. parse(str);
         }
 
 	    public void parse(String data) {
 
-            // data = Name+T:Data
+            // data = ID+Name+T:Data
             //     W:[-50..150];[D|R|S]>[0..5]; < -40 || >120 || R 4 || S 3 warn
             //     O:[0..1000]; < 500 warn
             //     L:[S|F]; F warn
@@ -422,9 +365,9 @@ public class IoT {
             //
 
             String[] tokens = data.split("[+:;]");
-            switch (tokens[1]) {
+            switch (tokens[2]) {
                 case "W" :
-                    String[] comps = tokens[2].split("[;>]");
+                    String[] comps = tokens[3].split("[;>]");
                     temp = Integer.parseInt(comps[0]);
                     precipitate = (
                         comps[1].equals("R") ? 1 :
@@ -435,34 +378,35 @@ public class IoT {
                     );
                     break;
                 case "O" :
-                    obstacleDist = Integer.parseInt(tokens[2]);
+                    obstacleDist = Integer.parseInt(tokens[3]);
                     break;
                 case "L" :
-                    barrDown = tokens[2].equals("S");
+                    barrDown = tokens[3].equals("S");
                     break;
                 case "S" :
                     speed =
-                        Integer.parseInt(tokens[2]) * 50 * Math.PI * 60/63360;
+                        Integer.parseInt(tokens[3]) * 50 * Math.PI * 60/63360;
                     break;
                 case "I" :
-                    curveDeg = Integer.parseInt(tokens[2]);
+                    curveDeg = Integer.parseInt(tokens[3]);
                     break;
                 case "A" :
-                    acceleration = Integer.parseInt(tokens[2]);
+                    acceleration = Integer.parseInt(tokens[3]);
                     break;
             }
-        }
+        } // endof parse
+    } // endof TSNR
 
-    }
-
-    class Sensor {
+    class Sensor { // FIXME maybe get rid of state
         private String name;
+        private int id;
         private String data;
         private String issue;
         private State state;
 
-        public Sensor(String name) {
+        public Sensor(String name, int id) {
             this.name = name;
+            this.id = id;
             this.state = State.SAFE;
             this.data = "1";
             this.issue = "";
@@ -515,7 +459,6 @@ public class IoT {
             } catch (IOException e) {
                 System.err.println("Error: Unable to clear '" + this.path + "'.");
             }
-
         }
 
         public void open() {
@@ -549,7 +492,7 @@ public class IoT {
 
             }
         }
-    }
+    } // endof Log
 
     protected int checkCreds(String[] creds) {
         if (creds[0].equals(techCreds[0]) && creds[1].equals(techCreds[1]))
@@ -591,4 +534,4 @@ public class IoT {
         return this.tsnr.infrared.data;
     }
 
-}
+} // endof IoT
