@@ -29,6 +29,8 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
 public class IoT {
+    private IoT system = this;
+
     private Display display;
     private TSNR tsnr;
     private Log log;
@@ -37,14 +39,18 @@ public class IoT {
     private String[] opCreds = {"o", "p"}; //{"operator", "password"};
     private String[] techCreds = {"t", "p"};  //{"technician", "password"};
 
-    private int temp = -1;
-    private int precipitate = -1;
-    private int precipitateIntensity = -1;
-    private int obstacleDist = -1;
-    private boolean barrDown = false;
-    private double speed = 0;
-    private int curveDeg = 0;
-    private int acceleration = 0;
+    // For parsed sensor data
+    private double temperature;
+    private int precipitate;
+    private int precipitateIntensity;
+    private double obstacleDist;
+    private int barrDown;
+    private double curveDeg;
+    private double acceleration;
+    private ArrayList<Double> instantSpeeds;
+
+    private static ArrayList<String> runInstructions = new ArrayList<String>();
+    private static int currLineInd = 0;
 
     public enum State {
         LOGIN,
@@ -61,35 +67,66 @@ public class IoT {
         this.tsnr = new TSNR();
         this.log = new Log();
         this.currentState = State.LOGIN;
+        this.temperature= -1000;
+        this.precipitate = -1;
+        this.precipitateIntensity = -1;
+        this.obstacleDist = -1;
+        this.barrDown = -1;
+        this.curveDeg = 0;
+        this.acceleration = 0;
+        this.instantSpeeds = new ArrayList<Double>();
     }
 
-    /*public boolean warning() {
-    	int weather = tsnr.weather.data;
-    	int inclin = tsnr.inclinometer.data;
-    	int speed = tsnr.speed.data;
-    	int acc = tsnr.accelerometer.data;
-    	int infrared = tsnr.infrared.data;
-
-    	if (
-            weather == 1
-            || inclin > 8
-            || speed == 1
-            || acc > 12
-            || infrared == 1
-        ) {
-    	    currentState = State.WARNING;
-    	    return true;
-    	}
-	    currentState = State.SAFE;
-	    return false;
-    }*/
-
     public static void main(String[] args) {
-        IoT iot = new IoT();
+        // read in isntructions file
+        readRun();
 
-        iot.log.clear();
+        // Start IoT engine
+        IoT iot = new IoT();
         iot.display.open();
         iot.currentState = State.LOGIN;
+    }
+
+    public static void readRun() {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader("run.txt"));
+            String line;
+            while ((line = br.readLine()) != null) {
+                String text = line.split("#")[0].trim();
+                if (!text.isEmpty()) runInstructions.add(text);
+            }
+
+        } catch (Exception e) {
+            System.out.println(e);
+            return;
+        }
+    }
+
+    public static boolean update(IoT iot) {
+        if (currLineInd == runInstructions.size()) {
+            System.out.println("----- RUN FILE END ------");
+            currLineInd++;
+            return false;
+        }
+
+        if (currLineInd > runInstructions.size()) return false;
+
+        String currLine = runInstructions.get(currLineInd);
+
+        if (currLine.indexOf(">") != 0) {
+            System.out.println(currLine);
+            currLineInd++;
+            return false;
+        }
+
+        while (currLine.indexOf(">") == 0) {
+            String data = currLine.substring(1).trim();
+            String name = data.split("[+]")[1];
+            iot.tsnr.sensors.get(name).data = data;
+            if (++currLineInd >= runInstructions.size()) break;
+            currLine = runInstructions.get(currLineInd);
+        }
+        return true;
     }
 
     class Display {
@@ -120,7 +157,7 @@ public class IoT {
                 setSize(width, height);
                 setBackground(Color.WHITE);
                 setFocusable(true);
-                timer = new Timer(100, this);
+                timer = new Timer(1000, this);
                 timer.start();
                 loginPane = createLoginPane();
                 this.add(loginPane);
@@ -129,9 +166,8 @@ public class IoT {
             public void paintComponent(Graphics g) {
                 super.paintComponent(g);
 
-                if (currentState == State.LOGIN) {
-
-
+                if (currentState == State.STATION) {
+                    System.out.println(currentState);
                 }
 
                 if (currentState == State.WARNING) {
@@ -147,10 +183,11 @@ public class IoT {
         	public void actionPerformed(ActionEvent e) {
         		Object source = e.getSource();
 
-        		// if (source == timer)
-        		// 	... update
+        		if (source == timer)
+                     system.update();
 
                 // ... collect ??
+                // ... analize ??
 
         		repaint();
 
@@ -173,7 +210,7 @@ public class IoT {
                         + "background: #fff; color: #000;"
                         + "padding: 100px;"
                         + "box-sizing: border-box;"
-                        + "}"
+                      + "}"
                     + "</style>"
                     + "</head>"
                     + "<body>"
@@ -237,18 +274,23 @@ public class IoT {
                       + "body {"
                         + "width: 650px; height: 500px;"
                         + "background: #fff; color: #000;"
-                        + "padding: 100px;"
+                        + "padding: 10px 50px;"
                         + "box-sizing: border-box;"
-                        + "}"
+                      + "}"
                     + "</style>"
                     + "</head>"
                     + "<body>"
-                      + "<h1>HELLO</ht>"
+                      + "<h1>DASHBOARD</h1>"
+                      + "<br>"
                     + "</body>"
                   + "</html>"
                 };
 
                 textPane.setText(String.join("", html));
+
+                JButton logout = new JButton("Log Out");
+                logout.addActionListener(logoutAction);
+                textPane.insertComponent(logout);
 
                 return textPane;
 
@@ -282,7 +324,7 @@ public class IoT {
                     scrollPane.getBorder())
                 );
 
-                JButton logout = new JButton("Logout");
+                JButton logout = new JButton("Log Out");
                 logout.addActionListener(logoutAction);
 
                 panel.add(scrollPane);
@@ -324,7 +366,7 @@ public class IoT {
 	    private Sensor weight;
 
         public TSNR() {
-            int id = 1;
+            int id = 0;
             sensors = new HashMap<String, Sensor>();
             weather = new Sensor("Weather", id++);
             inclinometer = new Sensor("Inclinometer", id++);
@@ -342,33 +384,27 @@ public class IoT {
 
         public String getSensorReport() {
             String report = "";
-            for (Sensor value : sensors.values())
-                report += value.data + ";";
+            for (Sensor s : sensors.values())
+                report += s.data + ";";
             return report;
         }
 
         public void collect() { // FIXME: Needs to set up data for update()
-            if (currentState == State.LOGIN) return;
-
-            // .. parse(str);
+            for (Sensor s : sensors.values()) {
+                parse(s);
+            }
         }
 
-	    public void parse(String data) {
-
-            // data = ID+Name+T:Data
-            //     W:[-50..150];[D|R|S]>[0..5]; < -40 || >120 || R 4 || S 3 warn
-            //     O:[0..1000]; < 500 warn
-            //     L:[S|F]; F warn
-            //     S:[0..2000]; -> s = rpm * d * Math.PI * 60 / 63360
-            //     I:[0..180]; > 8deg warin
-            //     A:[-2..15]; > 12mph warn
-            //
-
-            String[] tokens = data.split("[+:;]");
+	    public void parse(Sensor sensor) { // data format ID+NAME+TYPE:DATA
+            String[] tokens = sensor.data.split("[+:]");
+            if (tokens.length <= 3) {
+                System.out.println("Error: S-" + sensor.id + " " + sensor.name + " missing data.");
+                return;
+            }
             switch (tokens[2]) {
                 case "W" :
                     String[] comps = tokens[3].split("[;>]");
-                    temp = Integer.parseInt(comps[0]);
+                    temperature= Double.parseDouble(comps[0]);
                     precipitate = (
                         comps[1].equals("R") ? 1 :
                         comps[1].equals("S") ? 2 : 0
@@ -378,42 +414,42 @@ public class IoT {
                     );
                     break;
                 case "O" :
-                    obstacleDist = Integer.parseInt(tokens[3]);
+                    obstacleDist = Double.parseDouble(tokens[3]);
                     break;
                 case "L" :
-                    barrDown = tokens[3].equals("S");
+                    barrDown = tokens[3].equals("S") ? 1 : 0;
                     break;
                 case "S" :
-                    speed =
-                        Integer.parseInt(tokens[3]) * 50 * Math.PI * 60/63360;
+                    instantSpeeds.add(
+                        Double.parseDouble(tokens[3]) * 50 * Math.PI
+                        * 60 / 63360
+                    );
+                    if (instantSpeeds.size() > 10) instantSpeeds.remove(0);
                     break;
                 case "I" :
-                    curveDeg = Integer.parseInt(tokens[3]);
+                    curveDeg = Double.parseDouble(tokens[3]);
                     break;
                 case "A" :
-                    acceleration = Integer.parseInt(tokens[3]);
+                    acceleration = Double.parseDouble(tokens[3]);
                     break;
             }
         } // endof parse
     } // endof TSNR
 
-    class Sensor { // FIXME maybe get rid of state
+    class Sensor { // FIXME
         private String name;
         private int id;
         private String data;
-        private String issue;
-        private State state;
 
         public Sensor(String name, int id) {
             this.name = name;
             this.id = id;
-            this.state = State.SAFE;
-            this.data = "1";
-            this.issue = "";
+            this.data = "";
         }
 
         public String toString() {
-            return (state == State.SAFE ? "+" : "-") + "S" + this.name + ": State-" + this.state + ";" + (issue.equals("") ? "" : " Issue-") + this.issue + ";";
+            // TODO
+            return "";
         }
 
     }
@@ -508,6 +544,119 @@ public class IoT {
         if (account == -1) return false;
         this.currentState = State.values()[account + 1];
         return true;
+    }
+
+    public int[] analize() {
+        int dangerLevel = 0;
+        int sensorDL = 0;
+        int[] sensorDLList = new int[tsnr.sensors.size() + 1];
+
+        // Weather check
+        if (temperature > -1000) { //FIXME change variable names too long
+            int psum = precipitate + precipitateIntensity;
+            if (psum > 3 || temperature < -30 || temperature > 120)
+                sensorDL = ladd(sensorDL);
+            if (psum > 5 || temperature < -50 || temperature > 150)
+                sensorDL = ladd(sensorDL);
+            dangerLevel = Math.max(dangerLevel, sensorDL);
+            sensorDLList[tsnr.sensors.get("Weather").id] = sensorDL;
+            sensorDL = 0;
+        }
+
+        // Infrared obstacle check
+        if (obstacleDist > -1) {
+
+            if (obstacleDist <= 500)
+                sensorDL = ladd(sensorDL);
+            if (obstacleDist <= 250)
+                sensorDL = ladd(sensorDL);
+
+            dangerLevel = Math.max(dangerLevel, sensorDL);
+            sensorDLList[tsnr.sensors.get("Infrared").id] = sensorDL;
+            sensorDL = 0;
+        }
+
+        // Weight sensor barrier check
+        if (barrDown > -1) {
+
+            if (barrDown == 0)
+                sensorDL = 2;
+
+            dangerLevel = Math.max(dangerLevel, sensorDL);
+            sensorDLList[tsnr.sensors.get("Weight").id] = sensorDL;
+            sensorDL = 0;
+        }
+
+        // Inclinometer curve angle check
+        if (curveDeg != 0) {
+
+            if (curveDeg > 8)
+                sensorDL = ladd(sensorDL);
+            if (curveDeg > 20)
+                sensorDL = ladd(sensorDL);
+
+            dangerLevel = Math.max(dangerLevel, sensorDL);
+            sensorDLList[tsnr.sensors.get("Inclinometer").id] = sensorDL;
+            sensorDL = 0;
+        }
+
+        // Accelerometer check
+        if (acceleration != 0) {
+
+            if (acceleration > 12)
+                sensorDL = ladd(sensorDL);
+            if (acceleration > 20)
+                sensorDL = ladd(sensorDL);
+
+            dangerLevel = Math.max(dangerLevel, sensorDL);
+            sensorDLList[tsnr.sensors.get("Accelerometer").id] = sensorDL;
+            sensorDL = 0;
+        }
+
+        // Wheel slippage check
+        if (instantSpeeds.size() >= 2) {
+
+            double wslip = wheelSlippage();
+
+            if (wslip > 2)
+                sensorDL = ladd(sensorDL);
+            if (wslip > 5)
+                sensorDL = ladd(sensorDL);
+
+            dangerLevel = Math.max(dangerLevel, sensorDL);
+            sensorDLList[tsnr.sensors.size()] = sensorDL;
+            sensorDL = 0;
+        }
+
+        currentState = State.values()[dangerLevel + 4];
+        return sensorDLList;
+
+    } // endof analize
+
+    public int ladd(int n) {
+        return n + (n <= 1 ? 1 : 0);
+    }
+
+    public double wheelSlippage() {
+        double avgWheelAcc = 0;
+        for (int i = 1; i < instantSpeeds.size(); i++) {
+            avgWheelAcc += instantSpeeds.get(i) - instantSpeeds.get(i - 1);
+        }
+        avgWheelAcc /= instantSpeeds.size();
+
+        return avgWheelAcc - acceleration;
+    }
+
+    public void update() {
+        if (!IoT.update(system))
+            return;
+
+        tsnr.collect();
+        int[] analizedData = analize();
+        for (int i = 0; i < analizedData.length; i++) {
+            System.out.println("i: " + i + " => dl: " + analizedData[i]);
+        }
+
     }
 
     public State getCurrentState() {
