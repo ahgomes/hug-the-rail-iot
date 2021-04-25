@@ -1,24 +1,32 @@
 # --- Using run.txt ---
 # # is a comment
 # > sends line to sensor
-# All text gets printed to console as it is used by IoT
+# Sensor input format
+# > ID+Name+T:Data
+    # W:[-50..150];[D | [ [R|S]>[0..5] ] ]
+    # I:[0..180]
+    # S:[0..2000]
+    # A:[-2..15]
+    # O:[0..1000]
+    # L:[S|F]
+# All other text gets printed to console
 
 Train Run
 Train starts
 Moving...
-> 0+Weather+W:50;R>2
-> 1+Inclinometer+I:3
+> 0+Weather+W:50;R>5
+> 1+Inclinometer+I:30
 > 2+Speed+S:500
 > 3+Accelerometer+A:0
 > 4+Infrared+O:-1
 > 5+Weight+L:S
 Still moving ...
-
-
-# data = ID+Name+T:Data
-# W:[-50..150];[D|R|S]>[0..5]; < -40 || >120 || R 4 || S 3 warn
-# O:[0..1000]; < 500 warn
-# L:[S|F]; F warn
-# S:[0..2000]; -> s = rpm * d * Math.PI * 60 / 63360
-# I:[0..180]; > 8deg warin
-# A:[-2..15]; > 12mph warn
+> 2+Speed+S:500
+> 0+Weather+W:50;R>2
+> 2+Speed+S:600
+> 2+Speed+S:700
+> 2+Speed+S:800
+> 2+Speed+S:900
+AAAAA
+sdfjskf
+sdfjlaksfj

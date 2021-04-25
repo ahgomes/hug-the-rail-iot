@@ -5,8 +5,8 @@
  *  I pledge my honor that I have abided by the Stevens Honor System.
  *
  *  @author Adrian Gomes, Aliya Iqbal, Amraiza Naz, and Matthew Cunningham
- *  @versio 1.0
- *  @since 2021-04-19
+ *  @version 1.0
+ *  @since 2021-04-26
  */
 
 import org.junit.Test;

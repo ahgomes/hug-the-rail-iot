@@ -5,21 +5,22 @@
  *  I pledge my honor that I have abided by the Stevens Honor System.
  *
  *  @author Adrian Gomes, Aliya Iqbal, Amraiza Naz, and Matthew Cunningham
- *  @versio 1.0
- *  @since 2021-04-19
+ *  @version 1.0
+ *  @since 2021-04-26
  */
 
+// Imports for lists and parsing
 import java.util.*;
 import java.util.regex.Pattern;
 
+// Imports for logging
 import java.io.*;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+// Imports for GUI
 import java.awt.*;
 import java.awt.event.*;
-
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.GroupLayout.*;
@@ -87,6 +88,9 @@ public class IoT {
         iot.currentState = State.LOGIN;
     }
 
+    /**
+     * Reads in the instructions for the running of IoT from run.txt.
+     */
     public static void readRun() {
         try {
             BufferedReader br = new BufferedReader(new FileReader("run.txt"));
@@ -102,14 +106,26 @@ public class IoT {
         }
     }
 
+    /**
+     * Updates sensor data based on run instructions and prints to console.
+     * @param IoT the current IoT system
+     * @return boolean whether or not sensor data was updated
+     */
     public static boolean update(IoT iot) {
+        if (iot.currentState == State.TLOG || iot.currentState == State.LOGIN)
+            return false;
+
         if (currLineInd == runInstructions.size()) {
             System.out.println("----- RUN FILE END ------");
             currLineInd++;
             return false;
         }
 
-        if (currLineInd > runInstructions.size()) return false;
+        if (currLineInd > runInstructions.size())
+            return false;
+
+        if (currLineInd == 0)
+            System.out.println("----- RUN FILE START ------");
 
         String currLine = runInstructions.get(currLineInd);
 
@@ -129,6 +145,9 @@ public class IoT {
         return true;
     }
 
+    /**
+     * Creates GUI and used to present data to user.
+     */
     class Display {
         private JFrame frame;
 
@@ -136,6 +155,9 @@ public class IoT {
             frame = new JFrame("HRT IoT System");
         }
 
+        /**
+         * Sets up properties of the JFrame and adds a Window to it. Then opens * the GUI to be visible by the user.
+         */
         public void open() {
             int width = 800, height = 600;
     		frame.setSize(width, height);
@@ -145,6 +167,9 @@ public class IoT {
     		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         }
 
+        /**
+         * Creates the window to be added to the Display.
+         */
         class Window extends JPanel implements ActionListener {
             private Timer timer;
             private Window mainPanel;
@@ -163,6 +188,9 @@ public class IoT {
                 this.add(loginPane);
             }
 
+            /**
+             * Tells repaint what to do when run.
+             */
             public void paintComponent(Graphics g) {
                 super.paintComponent(g);
 
@@ -177,8 +205,14 @@ public class IoT {
                 if (currentState == State.DANGER) {
                     System.out.println(currentState);
                 }
+
+                // TODO
+
             }
 
+            /**
+             * Updates and repaints window.
+             */
             @Override
         	public void actionPerformed(ActionEvent e) {
         		Object source = e.getSource();
@@ -186,13 +220,13 @@ public class IoT {
         		if (source == timer)
                      system.update();
 
-                // ... collect ??
-                // ... analize ??
-
         		repaint();
-
         	}
 
+            /**
+             * Creates Login page with full login functionality.
+             * @return JTextPane the page to be added to the Window.
+             */
             public JTextPane createLoginPane() {
                 JTextPane textPane = new JTextPane();
                 textPane.setContentType("text/html");
@@ -214,7 +248,7 @@ public class IoT {
                     + "</style>"
                     + "</head>"
                     + "<body>"
-                    + "<img src=\"" + imgsrc +"\">"
+                    + "<img src=\"" + imgsrc + "\">"
                     + "<form action=\"#\">"
                       + "<label for=\"id\">Id:</label><br>"
                       + "<input type=\"text\" name=\"id\"><br>"
@@ -229,39 +263,51 @@ public class IoT {
 
                 textPane.setText(String.join("", html));
 
+                /*
+                 * Actived when user hits login. Decides whether to open log
+                 * log file, dashboard, or send authorization failure to user.
+                 */
                 HTMLEditorKit kit = (HTMLEditorKit)textPane.getEditorKit();
                 kit.setAutoFormSubmission(false);
                 textPane.addHyperlinkListener(new HyperlinkListener() {
                     @Override
-                        public void hyperlinkUpdate(HyperlinkEvent e) {
-                            if (e instanceof FormSubmitEvent) {
-                                String data = ((FormSubmitEvent)e).getData();
-                                String[] creds = data.split("[=&]");
-                                if (login(creds[1], creds[3])) {
-                                    log.open();
-                                    log.hline();
-                                    log.write("Login by " + creds[1], true);
-                                    mainPanel.remove(loginPane);
-                                    if (currentState == State.TLOG) {
-                                        log.flush();
-                                        logPanel = createLogPanel();
-                                        mainPanel.add(logPanel);
-                                        mainPanel.revalidate();
-                                    } else {
-                                        dashPane = createDashboardPane();
-                                        mainPanel.add(dashPane);
-                                    }
+                    public void hyperlinkUpdate(HyperlinkEvent e) {
+                        if (e instanceof FormSubmitEvent) {
+                            String data = ((FormSubmitEvent)e).getData();
+                            String[] creds = data.split("[=&]");
+                            if (
+                                creds.length > 3
+                                && login(creds[1], creds[3])
+                            ) {
+                                log.open();
+                                log.hline();
+                                log.write("Login by " + creds[1], true);
+                                mainPanel.remove(loginPane);
+                                if (currentState == State.TLOG) {
+                                    log.flush();
+                                    logPanel = createLogPanel();
+                                    mainPanel.add(logPanel);
+                                    mainPanel.revalidate();
                                 } else {
-                                    html[1] = "Unable to log in. Invalid Id or Password.";
-                                    textPane.setText(String.join("", html));
+                                    dashPane = createDashboardPane();
+                                    mainPanel.add(dashPane);
+                                    tsnr.diagnostic();
                                 }
+                            } else {
+                                html[1] = "Unable to log in. Invalid Id or Password.";
+                                textPane.setText(String.join("", html));
                             }
                         }
-                });
-
+                    }
+                }); // endof textPane.addHyperlinkListener
                 return textPane;
             } // endof createLoginPane
 
+            /**
+             * Creates Dashboard page with list of sensors to be used for
+             * displaying warnings to user.
+             * @return JTextPane the page to be added to the Window.
+             */
             public JTextPane createDashboardPane() {
                 JTextPane textPane = new JTextPane();
                 textPane.setContentType("text/html");
@@ -296,6 +342,10 @@ public class IoT {
 
             } // endof createDashboardPane
 
+            /**
+             * Creates log file page from iot.log for technician use.
+             * @return JPanel the page to be added to the Window.
+             */
             public JPanel createLogPanel() {
                 JPanel panel = new JPanel();
                 panel.setBackground(Color.WHITE);
@@ -335,6 +385,10 @@ public class IoT {
 
             } // endof createLogPanel
 
+            /*
+             * Actived when user hits logout on either the dashboard or the
+             * log file page. Brings the user back to the login page.
+             */
             public ActionListener logoutAction = new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     if (currentState == State.TLOG) {
@@ -343,8 +397,6 @@ public class IoT {
                         mainPanel.remove(dashPane);
                     }
 
-                    log.hline();
-                    log.close();
                     loginPane = createLoginPane();
                     mainPanel.add(loginPane);
                     mainPanel.revalidate();
@@ -352,12 +404,14 @@ public class IoT {
                     currentState = State.LOGIN;
                 }
             };
-
         } // endof Window
     } // endof Display
 
-    class TSNR { // FIXME might not need map if have id
-        private HashMap<String, Sensor> sensors;
+    /**
+     * Processes and sends data from Sensors to IoT
+     */
+    class TSNR {
+        private LinkedHashMap<String, Sensor> sensors;
         private Sensor weather;
 	    private Sensor inclinometer;
 	    private Sensor speedS;
@@ -367,7 +421,7 @@ public class IoT {
 
         public TSNR() {
             int id = 0;
-            sensors = new HashMap<String, Sensor>();
+            sensors = new LinkedHashMap<String, Sensor>();
             weather = new Sensor("Weather", id++);
             inclinometer = new Sensor("Inclinometer", id++);
             speedS = new Sensor("Speed", id++);
@@ -382,19 +436,34 @@ public class IoT {
             sensors.put(weight.name, weight);
         }
 
-        public String getSensorReport() {
-            String report = "";
-            for (Sensor s : sensors.values())
-                report += s.data + ";";
-            return report;
-        }
-
-        public void collect() { // FIXME: Needs to set up data for update()
-            for (Sensor s : sensors.values()) {
-                parse(s);
+        /**
+         * Checks the state of each sensor and logs its state.
+         */
+        public void diagnostic() {
+            int[] data = analize();
+            log.write("Ran diagnostic.", true);
+            int len = data.length;
+            for (int i = 0; i < len - 1; i++) {
+                String logMsg = "  * ";
+                Sensor s = (Sensor)tsnr.sensors.values().toArray()[i];
+                logMsg += "S-" + s.id + " " + s.name + ": ";
+                logMsg += State.values()[data[i] + 4];
+                log.write(logMsg, false);
             }
+            log.flush();
         }
 
+        /**
+         * Collects data from sensors and sends to the the parser.
+         */
+        public void collect() {
+            for (Sensor s : sensors.values())
+                parse(s);
+        }
+
+        /**
+         * Parses sensor data and updates IoT variables for each piece of data.
+         */
 	    public void parse(Sensor sensor) { // data format ID+NAME+TYPE:DATA
             String[] tokens = sensor.data.split("[+:]");
             if (tokens.length <= 3) {
@@ -436,7 +505,10 @@ public class IoT {
         } // endof parse
     } // endof TSNR
 
-    class Sensor { // FIXME
+    /**
+     * Houses Sensor information: name, id, and its data.
+     */
+    class Sensor {
         private String name;
         private int id;
         private String data;
@@ -451,9 +523,11 @@ public class IoT {
             // TODO
             return "";
         }
-
     }
 
+    /**
+     * Used for all interations with log file: iot.log or other path from input.
+     */
     class Log {
         private BufferedWriter bw;
         private String path;
@@ -470,11 +544,11 @@ public class IoT {
             this("iot.log");
         }
 
-        public String fmessage(String sysState, String sensorReport) {
-            String spacedSR = String.join("\n  ", sensorReport.split(";"));
-            return "System State: " + sysState + "\nSensor Report: {\n  " + spacedSR + "\n}";
-        }
-
+        /**
+         * Writes to the log file from message with or without time stamp.
+         * @param String message to be written to log
+         * @param boolean if message needs timestamp
+         */
         public void write(String msg, boolean istimed) {
             String start = "";
             if (istimed)
@@ -487,6 +561,9 @@ public class IoT {
             }
         }
 
+        /**
+         * Clears the log file.
+         */
         public void clear() {
             try {
                 bw.close();
@@ -497,6 +574,9 @@ public class IoT {
             }
         }
 
+        /**
+         * Opens the log file for reading.
+         */
         public void open() {
             try {
                 bw = new BufferedWriter(new FileWriter(this.path, true));
@@ -505,6 +585,9 @@ public class IoT {
             }
         }
 
+        /**
+         * Closes the log file.
+         */
         public void close() {
             try {
                 bw.close();
@@ -513,6 +596,9 @@ public class IoT {
             }
         }
 
+        /**
+         * Flushes log file.
+         */
         public void flush() {
             try {
                 bw.flush();
@@ -521,6 +607,9 @@ public class IoT {
             }
         }
 
+        /**
+         * Writes a horizontal line divider to log file.
+         */
         public void hline() {
             try {
                 bw.append("------------------------------------------------\n");
@@ -530,6 +619,12 @@ public class IoT {
         }
     } // endof Log
 
+    /**
+     * Validates credentials againts those stored in IoT for
+     * the operator and technician.
+     * @param String[] credentials to be checked
+     * @return int for credential match
+     */
     protected int checkCreds(String[] creds) {
         if (creds[0].equals(techCreds[0]) && creds[1].equals(techCreds[1]))
             return 0;
@@ -538,6 +633,12 @@ public class IoT {
         return -1;
     }
 
+    /**
+     * Validates whether login was successful and updates IoT current state.
+     * @param String user id
+     * @param String user password
+     * @return boolean login successful or not
+     */
     public boolean login(String id, String pass) {
         String[] creds = {id, pass};
         int account = checkCreds(creds);
@@ -546,6 +647,11 @@ public class IoT {
         return true;
     }
 
+    /**
+     * Checks the safety of each data point from sensors and updates state of
+     * IoT depending on certain criteria.
+     * @return int[] danger levels of each sensor or event
+     */
     public int[] analize() {
         int dangerLevel = 0;
         int sensorDL = 0;
@@ -565,7 +671,6 @@ public class IoT {
 
         // Infrared obstacle check
         if (obstacleDist > -1) {
-
             if (obstacleDist <= 500)
                 sensorDL = ladd(sensorDL);
             if (obstacleDist <= 250)
@@ -578,7 +683,6 @@ public class IoT {
 
         // Weight sensor barrier check
         if (barrDown > -1) {
-
             if (barrDown == 0)
                 sensorDL = 2;
 
@@ -589,7 +693,6 @@ public class IoT {
 
         // Inclinometer curve angle check
         if (curveDeg != 0) {
-
             if (curveDeg > 8)
                 sensorDL = ladd(sensorDL);
             if (curveDeg > 20)
@@ -602,7 +705,6 @@ public class IoT {
 
         // Accelerometer check
         if (acceleration != 0) {
-
             if (acceleration > 12)
                 sensorDL = ladd(sensorDL);
             if (acceleration > 20)
@@ -615,9 +717,7 @@ public class IoT {
 
         // Wheel slippage check
         if (instantSpeeds.size() >= 2) {
-
             double wslip = wheelSlippage();
-
             if (wslip > 2)
                 sensorDL = ladd(sensorDL);
             if (wslip > 5)
@@ -628,34 +728,66 @@ public class IoT {
             sensorDL = 0;
         }
 
-        currentState = State.values()[dangerLevel + 4];
+        if (currentState != State.LOGIN)
+            currentState = State.values()[dangerLevel + 4];
         return sensorDLList;
 
     } // endof analize
 
+    /**
+     * Limit add where increments until n is 2.
+     * @param int number to be add to
+     * @return int sum
+     */
     public int ladd(int n) {
         return n + (n <= 1 ? 1 : 0);
     }
 
+    /**
+     * Uses data from multiple senors to decide the potential of wheel slippage.
+     * @return double difference between acceleration of wheels and train
+     */
     public double wheelSlippage() {
         double avgWheelAcc = 0;
-        for (int i = 1; i < instantSpeeds.size(); i++) {
+        for (int i = 1; i < instantSpeeds.size(); i++)
             avgWheelAcc += instantSpeeds.get(i) - instantSpeeds.get(i - 1);
-        }
         avgWheelAcc /= instantSpeeds.size();
-
         return avgWheelAcc - acceleration;
     }
 
+    /**
+     * Upadates IoT based on collected and analized data from sensors and logs
+     * any issues or warnings.
+     */
     public void update() {
         if (!IoT.update(system))
             return;
 
         tsnr.collect();
         int[] analizedData = analize();
-        for (int i = 0; i < analizedData.length; i++) {
-            System.out.println("i: " + i + " => dl: " + analizedData[i]);
+
+        // Log warning
+        System.out.println("logging");
+        log.write(currentState.toString(), true);
+
+        int len = analizedData.length;
+        for (int i = 0; i < len; i++) {
+            if (analizedData[i] > 0) {
+                String logMsg = "  * ";
+                if (i < len - 1) {
+                    Sensor s = (Sensor)tsnr.sensors.values().toArray()[i];
+                    logMsg += "S-" + s.id + " " + s.name + ": ";
+                } else {
+                    logMsg += "Potential wheel slippage: ";
+                }
+
+                logMsg += State.values()[analizedData[i] + 4];
+                log.write(logMsg, false);
+            }
         }
+        log.flush();
+
+        // TODO deal with crashing
 
     }
 
