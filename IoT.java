@@ -314,22 +314,72 @@ public class IoT {
                 JTextPane textPane = new JTextPane();
                 textPane.setContentType("text/html");
                 textPane.setEditable(false);
+                
+                String weather_data;
+                String obst_data;
+                String trigger_data;
 
+                if (tsnr.weather.data == "0")
+                    weather_data = "False";
+                else if (tsnr.weather.data == "1")
+                    weather_data = "True";
+
+
+                if(tsnr.infrared.data == "0")
+                    obst_data = "False";
+                else if(tsnr.infrared.data == "1")
+                    obst_data = "True";
+
+
+                if (tsnr.weight.data == "0")
+                    trigger_data = "False";
+                else if (tsnr.weight.data == "1")
+                    trigger_data = "True";
+                    
                 String[] html = {""
                   + "<html>"
                     + "<head>"
                     + "<style>"
-                      + "body {"
-                        + "width: 650px; height: 500px;"
-                        + "background: #fff; color: #000;"
-                        + "padding: 10px 50px;"
-                        + "box-sizing: border-box;"
-                      + "}"
+                        + "body { width: 650px; height: 500px; background: #e6e6e6; color: #000; padding: 10px 50px; box-sizing: border-box; }"
+                        + "main { width: 100%; height: 100%; background: white; border: 1px solid #cacaca; border-radius: 4px; padding: 10px; }"
+                        + ".container { display: flex; flex-direction: row; align-items: stretch; justify-content: center; align-items: center; flex-wrap: wrap; }"
+                        + ".row { height: 45px; margin: 5px; width: 100%; }"
+                        + ".row div { display: inline-block; font-family: Helvetica; font-size: 18px; }"
+                        + ".row div:first-child { width: 35%; font-weight: bold; }"
                     + "</style>"
                     + "</head>"
                     + "<body>"
                       + "<h1>DASHBOARD</h1>"
-                      + "<br>"
+                      + "<div class=\"container\">"
+                        + "<div class=\"row\">"
+                            + "<div>State</div>"
+                            + "<div>" + currentState + "</div>"
+                        + "</div>"
+                        + "<div class=\"row\">"
+                            + "<div>Weather?</div>"
+                            + "<div>" + weather_data + "</div>"
+                        + "</div>"
+                        + "<div class=\"row\">"
+                            + "<div>Inclination</div>"
+                            + "<div>" + tsnr.inclinometer.data + "</div>"
+                        + "</div>"
+                        + "<div class=\"row\">"
+                            + "<div>Speed</div>"
+                            + "<div>" + tsnr.speedS.data + "</div>"
+                        + "</div>"
+                        + "<div class=\"row\">"
+                            + "<div>Acceleration</div>"
+                            + "<div>" + tsnr.accelerometer.data + "</div>"
+                        + "</div>"
+                        + "<div class=\"row\">"
+                            + "<div>Current Obstacles?</div>"
+                            + "<div>" + obst_data + "</div>"
+                        + "</div>"
+                        + "<div class=\"row\">"
+                            + "<div>Barrier Triggered?</div>"
+                            + "<div>" + trigger_data + "</div>"
+                        + "</div>"
+                      + "</div>"
                     + "</body>"
                   + "</html>"
                 };
