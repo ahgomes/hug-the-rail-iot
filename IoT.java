@@ -57,7 +57,6 @@ public class IoT {
         LOGIN,
         TLOG,
         STATION,
-        CRASH,
         SAFE,
         WARNING,
         DANGER
@@ -115,7 +114,6 @@ public class IoT {
         if (
             iot.currentState == State.TLOG
             || iot.currentState == State.LOGIN
-            || iot.currentState == State.CRASH
         ) {
             return false;
         }
@@ -138,13 +136,6 @@ public class IoT {
             iot.currentState = State.SAFE;
         if (iot.currentState != State.STATION && currLine.equals("STOPS"))
             iot.currentState = State.STATION;
-
-        if (currLine.equals("CRASHES")) {
-            iot.currentState = State.CRASH;
-            iot.log.open();
-            iot.log.write(State.CRASH.toString(), true);
-            iot.log.close();
-        }
 
         if (currLine.indexOf(">") != 0) {
             System.out.println(currLine);
@@ -324,7 +315,7 @@ public class IoT {
                 textPane.setContentType("text/html");
                 textPane.setEditable(false);
 
-                String[] htmlStarter = {""
+                String[] html = {""
                   + "<html>"
                     + "<head>"
                     + "<style>"
@@ -335,59 +326,63 @@ public class IoT {
                     + "}"
                     + "table {"
                       + "border-collapse: separate;"
-                      + "border-spacing: 15px;"
-                      + "padding: 5px;"
-                      + "border: 2px solid #000;"
+                      + "border-spacing: 10px;"
                     + "}"
                     + "td {"
                       + "padding: 20px;"
                       + "border: 1px solid #ddd;"
                       + "width: 100px;"
                     + "}"
-                    + "#s {"
+                    + ".s {"
                       + "padding: 10px;"
                       + "border: 2px solid #000;"
                       + "background: #4f4;"
                     + "}"
-                    + "#w {"
+                    + ".w {"
                       + "padding: 10px;"
                       + "border: 2px solid #000;"
                       + "background: #ff0;"
                     + "}"
-                    + "#d {"
+                    + ".d {"
                       + "padding: 10px;"
                       + "border: 2px solid #000;"
                       + "background: #f44;"
+                    + "}"
+                    + "i {"
+                      + "color: #555;"
                     + "}"
                     + "</style>"
                     + "</head>"
                     + "<body>"
                       + "<h1>DASHBOARD</h1><br>"
-                      + "<table><tr>", "</tr></table><br>"
+                      + "<table>"
+                        + "<tr>" +
+                          "<td><h3>Weather<h3><i>",
+                            "55.5°F<br>Sunny",
+                          "</i><div class=",
+                            "'s'>SAFE",
+                          "</div></td>" +
+                          "<td><h3>Speed<h3><i>",
+                            "0.00mph",
+                          "</i><div class=",
+                            "'s'>SAFE",
+                          "</div></td>" +
+                          "<td><h3>Crossing Barrier<h3><i>", "",
+                          "</i><div class=", "'s'>SAFE", "</div></td>"
+                        + "</tr>"
+                        + "<tr>" +
+                          "<td><h3>Potential Wheel Slippage<h3><i>", "",
+                          "</i><div class=", "'s'>SAFE", "</div></td>" +
+                          "<td><h3>Obstable Dectection<h3><i>",
+                            "None",
+                          "<i/><div class=",
+                            "'s'>SAFE",
+                          "</div></td>"
+                        + "</tr>"
+                      + "</table><br>"
                     + "</body>"
                   + "</html>"
                 };
-
-                ArrayList<String> htmlList = new ArrayList<String>();
-                htmlList.add(htmlStarter[0]);
-                Object[] sensors = tsnr.sensors.values().toArray();
-                for (int i = 0; i < sensors.length; i++) {
-                    htmlList.add((i == 3 ? "</tr><tr>" : "") + "<td>"
-                        + "<h3>" + ((Sensor)sensors[i]).name + "</h3><div id=");
-                    htmlList.add("'s'>SAFE");
-                    htmlList.add("</div></td>");
-                }
-
-                htmlList.add("<td><h3>Wheel Slippage</h3><div id=");
-                htmlList.add("'s'>SAFE");
-                htmlList.add("</div></td>");
-
-                htmlList.add(htmlStarter[1]);
-
-                Object[] o = htmlList.toArray();
-                String[] html = new String[o.length];
-                for (int i = 0; i < html.length; i++)
-                    html[i] = (String)o[i];
 
                 textPane.setText(String.join("", html));
 
@@ -507,7 +502,7 @@ public class IoT {
                 String logMsg = "  * ";
                 Sensor s = (Sensor)tsnr.sensors.values().toArray()[i];
                 logMsg += "S-" + s.id + " " + s.name + ": ";
-                logMsg += State.values()[data[i] + 4];
+                logMsg += State.values()[data[i] + 3];
                 log.write(logMsg, false);
             }
             log.flush();
@@ -580,8 +575,7 @@ public class IoT {
         }
 
         public String toString() {
-            // TODO
-            return "";
+            return "S-" + this.id + " " + this.name;
         }
     }
 
@@ -789,7 +783,7 @@ public class IoT {
         }
 
         if (currentState != State.STATION)
-            currentState = State.values()[dangerLevel + 4];
+            currentState = State.values()[dangerLevel + 3];
         return sensorDLList;
 
     } // endof analize
@@ -835,34 +829,58 @@ public class IoT {
                 String logMsg = "  * ";
                 if (i < len - 1) {
                     Sensor s = (Sensor)tsnr.sensors.values().toArray()[i];
-                    logMsg += "S-" + s.id + " " + s.name + ": ";
+                    logMsg += s.toString() + ": ";
                 } else {
                     logMsg += "Potential wheel slippage: ";
                 }
 
-                logMsg += State.values()[analizedData[i] + 4];
+                logMsg += State.values()[analizedData[i] + 3];
                 log.write(logMsg, false);
             }
         }
         log.flush();
 
-        // TODO deal with crashing
-
         // Update display
         if (display.window.dashHtml == null) return;
-        for (int i = 0, j = 2; i < len; i++) {
-            String msg = "";
-            if (analizedData[i] == 0) {
-                msg = "'s'>SAFE";
-            } else if (analizedData[i] == 1) {
-                msg = "'w'>WARNING";
-            } else {
-                msg = "'d'>DANGER";
+        String[] warnMsg = {"'s'>SAFE", "'w'>WARNING", "'d'>DANGER"};
+        String[] html = display.window.dashHtml;
+
+        // Weather
+        if (temperature > -1000) {
+            html[1] = (String)String.format("%.1f", temperature) + "°F<br>";
+            String weatherType = "";
+            if (precipitate == 0) {
+                weatherType = "Sunny";
+            } else if (precipitate == 1) {
+                if (precipitateIntensity >= 3)
+                    weatherType = "Strong ";
+                weatherType += "Rain";
+            } else if (precipitate == 2) {
+                if (precipitateIntensity >= 3)
+                    weatherType = "Strong ";
+                weatherType += "Snow";
             }
-            display.window.dashHtml[i + j] = msg;
-            j += 2;
+            html[1] += weatherType;
+            html[3] = warnMsg[analizedData[0]];
         }
 
+        // Speed
+        if (!instantSpeeds.isEmpty()) {
+            html[5] = (String)String.format("%.2f", instantSpeeds.get(instantSpeeds.size() - 1)) + "mph";
+            html[7] = warnMsg[analizedData[3]];
+        }
+
+        // Weight / Barrier Close
+        html[11] = warnMsg[analizedData[5]];
+
+        // Potential Wheel Slippage
+        html[15] = warnMsg[analizedData[6]];
+
+        // Obstable Dectection
+        if (obstacleDist > 0)
+            html[17] = (String)String.format("%.2f", obstacleDist) + "ft";
+        else html[17] = "None";
+        html[19] = warnMsg[analizedData[4]];
     }
 
     public State getCurrentState() {
