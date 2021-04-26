@@ -112,8 +112,13 @@ public class IoT {
      * @return boolean whether or not sensor data was updated
      */
     public static boolean update(IoT iot) {
-        if (iot.currentState == State.TLOG || iot.currentState == State.LOGIN)
+        if (
+            iot.currentState == State.TLOG
+            || iot.currentState == State.LOGIN
+            || iot.currentState == State.CRASH
+        ) {
             return false;
+        }
 
         if (currLineInd == runInstructions.size()) {
             System.out.println("----- RUN FILE END ------");
@@ -128,6 +133,18 @@ public class IoT {
             System.out.println("----- RUN FILE START ------");
 
         String currLine = runInstructions.get(currLineInd);
+
+        if (iot.currentState == State.STATION && currLine.equals("STARTS"))
+            iot.currentState = State.SAFE;
+        if (iot.currentState != State.STATION && currLine.equals("STOPS"))
+            iot.currentState = State.STATION;
+
+        if (currLine.equals("CRASHES")) {
+            iot.currentState = State.CRASH;
+            iot.log.open();
+            iot.log.write(State.CRASH.toString(), true);
+            iot.log.close();
+        }
 
         if (currLine.indexOf(">") != 0) {
             System.out.println(currLine);
@@ -150,6 +167,7 @@ public class IoT {
      */
     class Display {
         private JFrame frame;
+        private Window window;
 
         public Display() {
             frame = new JFrame("HRT IoT System");
@@ -162,7 +180,8 @@ public class IoT {
             int width = 800, height = 600;
     		frame.setSize(width, height);
             frame.setResizable(false);
-    		frame.add(new Window(width, height));
+            window = new Window(width, height);
+    		frame.add(window);
     		frame.setVisible(true);
     		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         }
@@ -175,39 +194,17 @@ public class IoT {
             private Window mainPanel;
             private JTextPane loginPane;
             private JTextPane dashPane;
+            private String[] dashHtml;
             private JPanel logPanel;
 
             public Window(int width, int height) {
                 mainPanel = this;
                 setSize(width, height);
-                setBackground(Color.WHITE);
                 setFocusable(true);
                 timer = new Timer(1000, this);
                 timer.start();
                 loginPane = createLoginPane();
                 this.add(loginPane);
-            }
-
-            /**
-             * Tells repaint what to do when run.
-             */
-            public void paintComponent(Graphics g) {
-                super.paintComponent(g);
-
-                if (currentState == State.STATION) {
-                    System.out.println(currentState);
-                }
-
-                if (currentState == State.WARNING) {
-                    System.out.println(currentState);
-                }
-
-                if (currentState == State.DANGER) {
-                    System.out.println(currentState);
-                }
-
-                // TODO
-
             }
 
             /**
@@ -217,8 +214,16 @@ public class IoT {
         	public void actionPerformed(ActionEvent e) {
         		Object source = e.getSource();
 
-        		if (source == timer)
-                     system.update();
+        		if (source == timer) {
+                    system.update();
+                    if (dashPane != null) {
+                        dashPane.setText(String.join("", dashHtml));
+                        // Set text does not account for logout btn and needs to be reinserted.
+                        JButton logout = new JButton("Log Out");
+                        logout.addActionListener(logoutAction);
+                        dashPane.insertComponent(logout);
+                    }
+                }
 
         		repaint();
         	}
@@ -231,6 +236,7 @@ public class IoT {
                 JTextPane textPane = new JTextPane();
                 textPane.setContentType("text/html");
                 textPane.setEditable(false);
+                textPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
                 String imgsrc = this.getClass().getClassLoader()
                     .getResource("img/tracks.png").toString();
@@ -238,26 +244,25 @@ public class IoT {
                 String[] html = {""
                   + "<html>"
                     + "<head>"
-                    + "<style>"
-                        + "body { background: #e6e6e6;; color: #000; padding: 100px; box-sizing: border-box; display: flex; flex-wrap: wrap; align-items: center; text-align: center; }"
+                    + "<style type=\"text/css\">"
+                        + "body {background: #f1f1f1; padding: 20px 100px; box-sizing: border-box; display: flex; flex-wrap: wrap; align-items: center; text-align: center; }"
                         + "form { text-align: center !important; display: block; width: 100%; padding: 15px; margin: auto; max-width: 330px;}"
                         + "main { display: block; width: 650px; max-height: 500px; margin: auto;}"
                         + "img { margin: 0 auto; height: 150px; }"
-                        + "#username, #password { display: block; width: 100%; line-height: 1.5; color: #495057; background-color: #fff; background-clip: padding-box;  border: 1px solid #ced4da; border-radius: .25rem; transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out; font-size: 16px; padding: 10px; font-size: 16px;}"
-                        + "#username { margin-bottom: -1px; border-bottom-right-radius: 0; border-bottom-left-radius: 0;}"
-                        + "#password { margin-bottom: 10px; border-top-left-radius: 0; border-top-right-radius: 0;}"
-                        + "#submit { background: #0077ed; color: white; width: 150px; height: 60px; margin-top: 10px; border-radius: 3px; border: none;}"
+                        + "span {color: #f00;}"
                     + "</style>"
                     + "</head>"
                     + "<body>"
                     + "<main>"
                         + "<img src=\"" + imgsrc + "\">"
                         + "<form action=\"#\">"
-                            + "<input id=\"username\" type=\"text\" name=\"id\" placeholder=\"Username ID\">"
-                            + "<input id=\"password\" type=\"password\" name=\"pass\" placeholder=\"Password\">"
+                            + "<label for=\"username\">User Id</label><br>"
+                            + "<input id=\"username\" type=\"text\" name=\"id\" placeholder=\"Username ID\"> <br>"
+                            + "<label for=\"password\">Password</label><br>"
+                            + "<input id=\"password\" type=\"password\" name=\"pass\" placeholder=\"Password\"><br>"
                             + "<input id=\"submit\" type=\"submit\" value=\"Log In\">"
                         + "</form>"
-                        + "<span>", "" ,"</span>"
+                        + "<span>", "__" ,"</span>"
                     + "</main>"
                     + "</body>"
                   + "</html>"
@@ -302,6 +307,10 @@ public class IoT {
                         }
                     }
                 }); // endof textPane.addHyperlinkListener
+
+                mainPanel.setBackground(new Color(40, 50, 160));
+                mainPanel.setBorder(BorderFactory.createEmptyBorder(50, 20, 20, 20));
+
                 return textPane;
             } // endof createLoginPane
 
@@ -314,71 +323,71 @@ public class IoT {
                 JTextPane textPane = new JTextPane();
                 textPane.setContentType("text/html");
                 textPane.setEditable(false);
-                
-                String weather_data;
-                String obst_data;
-                String trigger_data;
 
-                if (tsnr.weather.data == "0")
-                    weather_data = "False";
-                else if (tsnr.weather.data == "1")
-                    weather_data = "True";
-
-
-                if(tsnr.infrared.data == "0")
-                    obst_data = "False";
-                else if(tsnr.infrared.data == "1")
-                    obst_data = "True";
-
-
-                if (tsnr.weight.data == "0")
-                    trigger_data = "False";
-                else if (tsnr.weight.data == "1")
-                    trigger_data = "True";
-                    
-                String[] html = {""
+                String[] htmlStarter = {""
                   + "<html>"
                     + "<head>"
                     + "<style>"
-                        + "body { width: 650px; height: 500px; background: #e6e6e6; color: #000; padding: 10px 50px; box-sizing: border-box; }"
-                        + "main { width: 100%; height: 100%; background: white; border: 1px solid #cacaca; border-radius: 4px; padding: 10px; }"
-                        + ".container { display: flex; flex-direction: row; align-items: stretch; justify-content: center; align-items: center; flex-wrap: wrap; }"
-                        + ".row { height: 45px; margin: 5px; width: 100%; }"
-                        + ".row div { display: inline-block; font-family: Helvetica; font-size: 18px; }"
-                        + ".row div:first-child { width: 35%; font-weight: bold; }"
+                    + "body {"
+                      + "width: 650px; height: 500px;"
+                      + "background: #fff; color: #000;"
+                      + "padding: 10px 50px;"
+                    + "}"
+                    + "table {"
+                      + "border-collapse: separate;"
+                      + "border-spacing: 15px;"
+                      + "padding: 5px;"
+                      + "border: 2px solid #000;"
+                    + "}"
+                    + "td {"
+                      + "padding: 20px;"
+                      + "border: 1px solid #ddd;"
+                      + "width: 100px;"
+                    + "}"
+                    + "#s {"
+                      + "padding: 10px;"
+                      + "border: 2px solid #000;"
+                      + "background: #4f4;"
+                    + "}"
+                    + "#w {"
+                      + "padding: 10px;"
+                      + "border: 2px solid #000;"
+                      + "background: #ff0;"
+                    + "}"
+                    + "#d {"
+                      + "padding: 10px;"
+                      + "border: 2px solid #000;"
+                      + "background: #f44;"
+                    + "}"
                     + "</style>"
                     + "</head>"
                     + "<body>"
-                      + "<h1>DASHBOARD</h1>"
-                      + "<div class=\"container\">"
-                        + "<div class=\"row\">"
-                            + "<div>Weather?</div>"
-                            + "<div>" + weather_data + "</div>"
-                        + "</div>"
-                        + "<div class=\"row\">"
-                            + "<div>Inclination</div>"
-                            + "<div>" + tsnr.inclinometer.data + "</div>"
-                        + "</div>"
-                        + "<div class=\"row\">"
-                            + "<div>Speed</div>"
-                            + "<div>" + tsnr.speedS.data + "</div>"
-                        + "</div>"
-                        + "<div class=\"row\">"
-                            + "<div>Acceleration</div>"
-                            + "<div>" + tsnr.accelerometer.data + "</div>"
-                        + "</div>"
-                        + "<div class=\"row\">"
-                            + "<div>Current Obstacles?</div>"
-                            + "<div>" + obst_data + "</div>"
-                        + "</div>"
-                        + "<div class=\"row\">"
-                            + "<div>Barrier Triggered?</div>"
-                            + "<div>" + trigger_data + "</div>"
-                        + "</div>"
-                      + "</div>"
+                      + "<h1>DASHBOARD</h1><br>"
+                      + "<table><tr>", "</tr></table><br>"
                     + "</body>"
                   + "</html>"
                 };
+
+                ArrayList<String> htmlList = new ArrayList<String>();
+                htmlList.add(htmlStarter[0]);
+                Object[] sensors = tsnr.sensors.values().toArray();
+                for (int i = 0; i < sensors.length; i++) {
+                    htmlList.add((i == 3 ? "</tr><tr>" : "") + "<td>"
+                        + "<h3>" + ((Sensor)sensors[i]).name + "</h3><div id=");
+                    htmlList.add("'s'>SAFE");
+                    htmlList.add("</div></td>");
+                }
+
+                htmlList.add("<td><h3>Wheel Slippage</h3><div id=");
+                htmlList.add("'s'>SAFE");
+                htmlList.add("</div></td>");
+
+                htmlList.add(htmlStarter[1]);
+
+                Object[] o = htmlList.toArray();
+                String[] html = new String[o.length];
+                for (int i = 0; i < html.length; i++)
+                    html[i] = (String)o[i];
 
                 textPane.setText(String.join("", html));
 
@@ -386,8 +395,11 @@ public class IoT {
                 logout.addActionListener(logoutAction);
                 textPane.insertComponent(logout);
 
-                return textPane;
+                mainPanel.setBackground(Color.WHITE);
+                mainPanel.setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
 
+                dashHtml = html;
+                return textPane;
             } // endof createDashboardPane
 
             /**
@@ -416,9 +428,8 @@ public class IoT {
                 scrollPane.setBorder(
                     BorderFactory.createCompoundBorder(
                       BorderFactory.createCompoundBorder(
-                        BorderFactory.createTitledBorder("Log"),
-                        BorderFactory.createEmptyBorder(10, 10, 10, 10)
-                      ),
+                      BorderFactory.createTitledBorder("Log file: '" + log.path + "'"),
+                      BorderFactory.createEmptyBorder(10, 10, 10, 10)),
                     scrollPane.getBorder())
                 );
 
@@ -429,8 +440,9 @@ public class IoT {
                 panel.add(Box.createRigidArea(new Dimension(0,10)));
                 panel.add(logout);
 
+                mainPanel.setBackground(Color.WHITE);
+                mainPanel.setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
                 return panel;
-
             } // endof createLogPanel
 
             /*
@@ -776,7 +788,7 @@ public class IoT {
             sensorDL = 0;
         }
 
-        if (currentState != State.LOGIN)
+        if (currentState != State.STATION)
             currentState = State.values()[dangerLevel + 4];
         return sensorDLList;
 
@@ -815,7 +827,6 @@ public class IoT {
         int[] analizedData = analize();
 
         // Log warning
-        System.out.println("logging");
         log.write(currentState.toString(), true);
 
         int len = analizedData.length;
@@ -836,6 +847,21 @@ public class IoT {
         log.flush();
 
         // TODO deal with crashing
+
+        // Update display
+        if (display.window.dashHtml == null) return;
+        for (int i = 0, j = 2; i < len; i++) {
+            String msg = "";
+            if (analizedData[i] == 0) {
+                msg = "'s'>SAFE";
+            } else if (analizedData[i] == 1) {
+                msg = "'w'>WARNING";
+            } else {
+                msg = "'d'>DANGER";
+            }
+            display.window.dashHtml[i + j] = msg;
+            j += 2;
+        }
 
     }
 
