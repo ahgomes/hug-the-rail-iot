@@ -54,4 +54,61 @@ public class IoTTest {
     }
 
     // TODO Add more test cases. Look at document requirements and use cases. I put some examples but idk if they match with document i didnt check.
+    public void displayData(train = departed) {
+        if (train has power && iot has power)
+            sensor sends data to tsnr 
+            tsnr sends data to IoT
+            IoT displays data
+        else 
+            nothing
+    }
+
+    public void displayWarning (train has power && iot has power && sensors are operating and detect warning) {
+
+        if (sensors detect warning) {
+            if (weather sensors detects snow or ice on track) {
+                sensor sends data to tsnr
+                tsnr sends data to iot
+                IoT processes data and displays a warning message to the operator
+                Log file records incident with timestamp
+            }
+            if (Infrared sensors detect moving object on track) {
+                sensor sends data to tsnr
+                tsnr sends data to iot
+                IoT processes data and displays a warning message to the operator
+                Log file records incident with timestamp
+            }
+            if (Infrared sensors detect stationary object on track){
+                sensor sends data to tsnr
+                tsnr sends data to iot
+                IoT processes data and displays a warning message to the operator
+                Log file records incident with timestamp
+            }
+            if (Inclinometer detects train inclination that exceeds 8˚){
+                sensor sends data to tsnr
+                tsnr sends data to iot
+                IoT processes data and displays a warning message to the operator
+                Log file records incident with timestamp
+            }
+            if (Speed sensors detect discrepancy between train and wheel speed) {
+                sensor sends data to tsnr
+                tsnr sends data to iot
+                IoT processes data and displays a warning message to the operator
+                Log file records incident with timestamp
+            }
+            if (Accelerometer detects acceleration that exceeds 12 mph){
+                sensor sends data to tsnr
+                tsnr sends data to iot
+                IoT processes data and displays a warning message to the operator
+                Log file records incident with timestamp
+            }
+        }
+    }
+
+    public void accessLogData (train is on and technician is logged in) {
+        if (log file is requested) {
+            display log file data
+        }
+    }
+
 }
