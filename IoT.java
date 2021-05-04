@@ -37,8 +37,8 @@ public class IoT {
     private Log log;
     private State currentState;
 
-    private String[] opCreds = {"o", "p"}; //{"operator", "password"};
-    private String[] techCreds = {"t", "p"};  //{"technician", "password"};
+    private String[] opCreds = {"operator", "password"};
+    private String[] techCreds = {"technician", "password"};
 
     // For parsed sensor data
     private double temperature;
@@ -253,9 +253,9 @@ public class IoT {
                         + "<img src=\"" + imgsrc + "\">"
                         + "<form action=\"#\">"
                             + "<label for=\"username\">User Id</label><br>"
-                            + "<input id=\"username\" type=\"text\" name=\"id\" placeholder=\"Username ID\"> <br>"
+                            + "<input id=\"username\" type=\"text\" name=\"id\"> <br>"
                             + "<label for=\"password\">Password</label><br>"
-                            + "<input id=\"password\" type=\"password\" name=\"pass\" placeholder=\"Password\"><br>"
+                            + "<input id=\"password\" type=\"password\" name=\"pass\"><br>"
                             + "<input id=\"submit\" type=\"submit\" value=\"Log In\">"
                         + "</form>"
                         + "<span>", "__" ,"</span>"

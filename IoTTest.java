@@ -35,10 +35,10 @@ public class IoTTest {
     @Test
     public void testLogin() {
         IoT iot = new IoT();
-        iot.login("o", "p"); //operator login
+        iot.login("operator", "password"); //operator login
         assertEquals("STATION", iot.getCurrentState().toString());
         iot = new IoT();
-        iot.login("t", "p"); // technician login
+        iot.login("technician", "password"); // technician login
         assertEquals("TLOG", iot.getCurrentState().toString());
         iot = new IoT();
         iot.login("tec", "password"); // failed login
