@@ -6,7 +6,7 @@
  *
  *  @author Adrian Gomes, Aliya Iqbal, Amraiza Naz, and Matthew Cunningham
  *  @version 1.0
- *  @since 2021-04-26
+ *  @since 2021-05-03
  */
 
 // Imports for lists and parsing
@@ -51,7 +51,7 @@ public class IoT {
     private ArrayList<Double> instantSpeeds;
 
     private static ArrayList<String> runInstructions = new ArrayList<String>();
-    private static int currLineInd = 0;
+    private static int currLineInd = -1;
 
     public enum State {
         LOGIN,
@@ -59,7 +59,7 @@ public class IoT {
         STATION,
         SAFE,
         WARNING,
-        DANGER
+        DANGER,
     }
 
     public IoT() {
@@ -98,7 +98,7 @@ public class IoT {
                 String text = line.split("#")[0].trim();
                 if (!text.isEmpty()) runInstructions.add(text);
             }
-
+            currLineInd = 0;
         } catch (Exception e) {
             System.out.println(e);
             return;
@@ -117,6 +117,9 @@ public class IoT {
         ) {
             return false;
         }
+
+        if (currLineInd < 0)
+            return false;
 
         if (currLineInd == runInstructions.size()) {
             System.out.println("----- RUN FILE END ------");
@@ -236,7 +239,7 @@ public class IoT {
                   + "<html>"
                     + "<head>"
                     + "<style type=\"text/css\">"
-                        + "body {background: #f1f1f1; padding: 20px 100px; box-sizing: border-box; display: flex; flex-wrap: wrap; align-items: center; text-align: center; }"
+                        + "body {background: #f1f1f1; padding: 20px 100px; box-sizing: border-box; display: flex; flex-wrap: wrap; align-items: center; text-align: center; font-family: Arial, Helvetica, sans-serif;}"
                         + "form { text-align: center !important; display: block; width: 100%; padding: 15px; margin: auto; max-width: 330px;}"
                         + "main { display: block; width: 650px; max-height: 500px; margin: auto;}"
                         + "img { margin: 0 auto; height: 150px; }"
@@ -320,66 +323,64 @@ public class IoT {
                     + "<head>"
                     + "<style>"
                     + "body {"
+                      + "font-family: Arial, Helvetica, sans-serif;"
                       + "width: 650px; height: 500px;"
                       + "background: #fff; color: #000;"
                       + "padding: 10px 50px;"
                     + "}"
                     + "table {"
                       + "border-collapse: separate;"
-                      + "border-spacing: 10px;"
+                      + "border-spacing: 5px;"
                     + "}"
                     + "td {"
-                      + "padding: 20px;"
+                      + "padding: 20px 30px;"
                       + "border: 1px solid #ddd;"
                       + "width: 100px;"
+                      + "background: #fafafa;"
+                    + "}"
+                    + ".s, .w, .d {"
+                      + "padding: 10px;"
+                      + "text-align: center;"
                     + "}"
                     + ".s {"
-                      + "padding: 10px;"
-                      + "border: 2px solid #000;"
                       + "background: #4f4;"
                     + "}"
                     + ".w {"
-                      + "padding: 10px;"
-                      + "border: 2px solid #000;"
                       + "background: #ff0;"
                     + "}"
                     + ".d {"
-                      + "padding: 10px;"
-                      + "border: 2px solid #000;"
                       + "background: #f44;"
                     + "}"
                     + "i {"
                       + "color: #555;"
+                      + "white-space: nowrap;"
                     + "}"
                     + "</style>"
                     + "</head>"
                     + "<body>"
-                      + "<h1>DASHBOARD</h1><br>"
+                      + "<h1>DASHBOARD</h1>"
                       + "<table>"
                         + "<tr>" +
-                          "<td><h3>Weather<h3><i>",
+                          "<td><i>Weather<i><h3>",
                             "55.5°F<br>Sunny",
-                          "</i><div class=",
+                          "</h3><div class=",
                             "'s'>SAFE",
                           "</div></td>" +
-                          "<td><h3>Speed<h3><i>",
+                          "<td><i>Speed<i><h3>",
                             "0.00mph",
-                          "</i><div class=",
+                          "</h3><br/><div class=",
                             "'s'>SAFE",
                           "</div></td>" +
-                          "<td><h3>Crossing Barrier<h3><i>", "",
-                          "</i><div class=", "'s'>SAFE", "</div></td>"
+                          "<td><i>Crossing Barrier<i><h3>", "",
+                          "</h3><br/><div class=", "'s'>SAFE", "</div></td>"
                         + "</tr>"
                         + "<tr>" +
-                          "<td><h3>Potential Wheel Slippage<h3><i>", "",
-                          "</i><div class=", "'s'>SAFE", "</div></td>" +
-                          "<td><h3>Obstable Dectection<h3><i>",
-                            "None",
-                          "<i/><div class=",
-                            "'s'>SAFE",
-                          "</div></td>"
+                          "<td><i>Potential Wheel Slippage<i><h3>", "None",
+                          "</h3><br/><div class=", "'s'>SAFE", "</div></td>" +
+                          "<td><i>Obstable Dectection<i><h3>", "None",
+                          "</h3><br/><div class=", "'s'>SAFE", "</div></td>"
                         + "</tr>"
-                      + "</table><br>"
+                      + "</table><h2 class=", "''>", "</h2><br>"
                     + "</body>"
                   + "</html>"
                 };
@@ -522,7 +523,7 @@ public class IoT {
 	    public void parse(Sensor sensor) { // data format ID+NAME+TYPE:DATA
             String[] tokens = sensor.data.split("[+:]");
             if (tokens.length <= 3) {
-                System.out.println("Error: S-" + sensor.id + " " + sensor.name + " missing data.");
+                //System.out.println("Error: S-" + sensor.id + " " + sensor.name + " missing data.");
                 return;
             }
             switch (tokens[2]) {
@@ -712,9 +713,9 @@ public class IoT {
         int[] sensorDLList = new int[tsnr.sensors.size() + 1];
 
         // Weather check
-        if (temperature > -1000) { //FIXME change variable names too long
+        if (temperature > -1000) {
             int psum = precipitate + precipitateIntensity;
-            if (psum > 3 || temperature < -30 || temperature > 120)
+            if (psum > 3 || temperature < 20 || temperature > 120)
                 sensorDL = ladd(sensorDL);
             if (psum > 5 || temperature < -50 || temperature > 150)
                 sensorDL = ladd(sensorDL);
@@ -772,11 +773,10 @@ public class IoT {
         // Wheel slippage check
         if (instantSpeeds.size() >= 2) {
             double wslip = wheelSlippage();
-            if (wslip > 2)
+            if (wslip > 0.3)
                 sensorDL = ladd(sensorDL);
-            if (wslip > 5)
+            if (wslip > 0.7)
                 sensorDL = ladd(sensorDL);
-
             dangerLevel = Math.max(dangerLevel, sensorDL);
             sensorDLList[tsnr.sensors.size()] = sensorDL;
             sensorDL = 0;
@@ -806,7 +806,25 @@ public class IoT {
         for (int i = 1; i < instantSpeeds.size(); i++)
             avgWheelAcc += instantSpeeds.get(i) - instantSpeeds.get(i - 1);
         avgWheelAcc /= instantSpeeds.size();
-        return avgWheelAcc - acceleration;
+        return Math.abs(avgWheelAcc - acceleration);
+    }
+
+    /**
+     * Gets duration of sound horn warning.
+     * @return int duration
+     */
+    public int soundHornDur() {
+        int hornDuration = 10;
+        return hornDuration;
+    }
+
+    /**
+     * Handles collection and analysis of data.
+     * @return int[] sensor danger levels
+     */
+    public int[] handleData() {
+        tsnr.collect();
+        return analize();
     }
 
     /**
@@ -817,8 +835,7 @@ public class IoT {
         if (!IoT.update(system))
             return;
 
-        tsnr.collect();
-        int[] analizedData = analize();
+        int[] analizedData = handleData();
 
         // Log warning
         log.write(currentState.toString(), true);
@@ -874,37 +891,84 @@ public class IoT {
         html[11] = warnMsg[analizedData[5]];
 
         // Potential Wheel Slippage
-        html[15] = warnMsg[analizedData[6]];
+        html[13] = (curveDeg > 8 ? "Sharp curve": "");
+        html[15] = warnMsg[Math.max(analizedData[6], analizedData[1])];
 
         // Obstable Dectection
         if (obstacleDist > 0)
             html[17] = (String)String.format("%.2f", obstacleDist) + "ft";
         else html[17] = "None";
         html[19] = warnMsg[analizedData[4]];
+
+        // Horn Warning
+        int hornDur = soundHornDur();
+        if (hornDur > 0) {
+            html[21] = "'w'>Approaching crossing. Sound the horn for " + hornDur + " seconds.";
+        } else html[21] = "''>";
     }
 
+    /**
+     * Gets current state of IoT
+     * @return State currentState
+     */
     public State getCurrentState() {
         return this.currentState;
     }
 
-    public String getWeatherData() {
-        return this.tsnr.weather.data;
+    /**
+     * Sets current state of IoT
+     * @param int stateVal
+     */
+    public void setCurrentState(int stateVal) {
+        this.currentState = State.values()[stateVal];
     }
 
-    public String getInclinationData() {
-        return this.tsnr.inclinometer.data;
+    /**
+     * Sets weather sensor data
+     * @param String data
+     */
+    public void setWeatherData(String data) {
+        this.tsnr.weather.data = data;
     }
 
-    public String getSpeedData() {
-        return this.tsnr.speedS.data;
+    /**
+     * Sets inclinometer sensor data
+     * @param String data
+     */
+    public void setInclinometerData(String data) {
+        this.tsnr.inclinometer.data = data;
     }
 
-    public String getAccelerationData() {
-        return this.tsnr.accelerometer.data;
+    /**
+     * Sets speed sensor data
+     * @param String data
+     */
+    public void setSpeedData(String data) {
+        this.tsnr.speedS.data = data;
     }
 
-    public String getInfraredData() {
-        return this.tsnr.infrared.data;
+    /**
+     * Sets accelerometer sensor data
+     * @param String data
+     */
+    public void setAccelerometerData(String data) {
+        this.tsnr.accelerometer.data = data;
+    }
+
+    /**
+     * Sets infrared sensor data
+     * @param String data
+     */
+    public void setInfraredData(String data) {
+        this.tsnr.infrared.data = data;
+    }
+
+    /**
+     * Sets weight sensor data
+     * @param String data
+     */
+    public void setWeightData(String data) {
+        this.tsnr.weight.data = data;
     }
 
 } // endof IoT

@@ -6,7 +6,7 @@
  *
  *  @author Adrian Gomes, Aliya Iqbal, Amraiza Naz, and Matthew Cunningham
  *  @version 1.0
- *  @since 2021-04-26
+ *  @since 2021-05-03
  */
 
 import org.junit.Test;
@@ -29,86 +29,154 @@ public class IoTTest {
            System.out.println("All tests passed.");
     }
 
+    /**
+     * Tests Login validation.
+     */
     @Test
-    public void test1() {
+    public void testLogin() {
         IoT iot = new IoT();
-        assertFalse(iot.login("id", "pass"));
-        assertFalse(iot.login("id", "password"));
-        assertFalse(iot.login("operator", "pass"));
-        assertFalse(iot.login("technician", "pass"));
-        assertTrue(iot.login("operator", "password"));
-        assertTrue(iot.login("technician", "password"));
+        iot.login("o", "p"); //operator login
+        assertEquals("STATION", iot.getCurrentState().toString());
+        iot = new IoT();
+        iot.login("t", "p"); // technician login
+        assertEquals("TLOG", iot.getCurrentState().toString());
+        iot = new IoT();
+        iot.login("tec", "password"); // failed login
+        assertEquals("LOGIN", iot.getCurrentState().toString());
     }
 
+    /**
+     * Tests weather warning.
+     */
     @Test
-    public void test2() {
+    public void testWeather() {
         IoT iot = new IoT();
-        iot.login("operator", "password");
-        assertEquals(iot.getCurrentState().toString(), "STATION");
-        iot = new IoT();
-        iot.login("technician", "password");
-        assertEquals(iot.getCurrentState().toString(), "TLOG");
-        iot = new IoT();
-        iot.login("tec", "password");
-        assertEquals(iot.getCurrentState().toString(), "LOGIN");
+        iot.setCurrentState(3); // 3 represents safe state
+        iot.setWeatherData("0+Weather+W:50;D"); // dry
+        iot.handleData();
+        assertEquals("SAFE", iot.getCurrentState().toString());
+        iot.setWeatherData("0+Weather+W:50;R>3"); // rain
+        iot.handleData();
+        assertEquals("WARNING", iot.getCurrentState().toString());
+        iot.setWeatherData("0+Weather+W:50;S>4"); // snow
+        iot.handleData();
+        assertEquals("DANGER", iot.getCurrentState().toString());
     }
 
-    // TODO Add more test cases. Look at document requirements and use cases. I put some examples but idk if they match with document i didnt check.
-    public void displayData(train = departed) {
-        if (train has power && iot has power)
-            sensor sends data to tsnr 
-            tsnr sends data to IoT
-            IoT displays data
-        else 
-            nothing
+    /**
+     * Tests curve degree warning.
+     */
+    @Test
+    public void testInclinometer() {
+        IoT iot = new IoT();
+        iot.setCurrentState(3); // 3 represents safe state
+        iot.setInclinometerData("1+Inclinometer+I:0"); // no curve
+        iot.handleData();
+        assertEquals("SAFE", iot.getCurrentState().toString());
+        iot.setInclinometerData("1+Inclinometer+I:3"); // small curve
+        iot.handleData();
+        assertEquals("SAFE", iot.getCurrentState().toString());
+        iot.setInclinometerData("1+Inclinometer+I:9"); // harsh curve
+        iot.handleData();
+        assertEquals("WARNING", iot.getCurrentState().toString());
+        iot.setInclinometerData("1+Inclinometer+I:30"); // extreme curve
+        iot.handleData();
+        assertEquals("DANGER", iot.getCurrentState().toString());
     }
 
-    public void displayWarning (train has power && iot has power && sensors are operating and detect warning) {
-
-        if (sensors detect warning) {
-            if (weather sensors detects snow or ice on track) {
-                sensor sends data to tsnr
-                tsnr sends data to iot
-                IoT processes data and displays a warning message to the operator
-                Log file records incident with timestamp
-            }
-            if (Infrared sensors detect moving object on track) {
-                sensor sends data to tsnr
-                tsnr sends data to iot
-                IoT processes data and displays a warning message to the operator
-                Log file records incident with timestamp
-            }
-            if (Infrared sensors detect stationary object on track){
-                sensor sends data to tsnr
-                tsnr sends data to iot
-                IoT processes data and displays a warning message to the operator
-                Log file records incident with timestamp
-            }
-            if (Inclinometer detects train inclination that exceeds 8˚){
-                sensor sends data to tsnr
-                tsnr sends data to iot
-                IoT processes data and displays a warning message to the operator
-                Log file records incident with timestamp
-            }
-            if (Speed sensors detect discrepancy between train and wheel speed) {
-                sensor sends data to tsnr
-                tsnr sends data to iot
-                IoT processes data and displays a warning message to the operator
-                Log file records incident with timestamp
-            }
-            if (Accelerometer detects acceleration that exceeds 12 mph){
-                sensor sends data to tsnr
-                tsnr sends data to iot
-                IoT processes data and displays a warning message to the operator
-                Log file records incident with timestamp
-            }
-        }
+    /**
+     * Tests wheel slippage warning.
+     */
+    @Test
+    public void testSlippage() {
+        IoT iot = new IoT();
+        iot.setCurrentState(3); // 3 represents safe state
+        // no slippage
+        iot.setSpeedData("2+Speed+S:500");
+        iot.handleData();
+        iot.setSpeedData("2+Speed+S:500");
+        iot.setAccelerometerData("3+Accelerometer+A:0");
+        iot.handleData();
+        iot.setSpeedData("2+Speed+S:500");
+        iot.handleData();
+        assertEquals("SAFE", iot.getCurrentState().toString());
+        // potential slippage
+        iot.setSpeedData("2+Speed+S:500");
+        iot.handleData();
+        iot.setSpeedData("2+Speed+S:510");
+        iot.setAccelerometerData("3+Accelerometer+A:0");
+        iot.handleData();
+        iot.setSpeedData("2+Speed+S:520");
+        iot.handleData();
+        iot.setSpeedData("2+Speed+S:530");
+        iot.handleData();
+        assertEquals("WARNING", iot.getCurrentState().toString());
+        // definite slippage
+        iot.setSpeedData("2+Speed+S:500");
+        iot.handleData();
+        iot.setSpeedData("2+Speed+S:560");
+        iot.setAccelerometerData("3+Accelerometer+A:2");
+        iot.handleData();
+        iot.setSpeedData("2+Speed+S:700");
+        iot.handleData();
+        assertEquals("DANGER", iot.getCurrentState().toString());
     }
 
-    public void accessLogData (train is on and technician is logged in) {
-        if (log file is requested) {
-            display log file data
-        }
+    /**
+     * Tests accelration warning.
+     */
+    @Test
+    public void testAccelerometer() {
+        IoT iot = new IoT();
+        iot.setCurrentState(3); // 3 represents safe state
+        iot.setAccelerometerData("3+Accelerometer+A:0"); // no acceleration
+        iot.handleData();
+        assertEquals("SAFE", iot.getCurrentState().toString());
+        iot.setAccelerometerData("3+Accelerometer+A:5"); // low acceleration
+        iot.handleData();
+        assertEquals("SAFE", iot.getCurrentState().toString());
+        iot.setAccelerometerData("3+Accelerometer+A:13"); // high acceleration
+        iot.handleData();
+        assertEquals("WARNING", iot.getCurrentState().toString());
+        iot.setAccelerometerData("3+Accelerometer+A:50"); //extreme acceleration
+        iot.handleData();
+        assertEquals("DANGER", iot.getCurrentState().toString());
+    }
+
+    /**
+     * Tests obstacle warning.
+     */
+    @Test
+    public void testInfrared() {
+        IoT iot = new IoT();
+        iot.setCurrentState(3); // 3 represents safe state
+        iot.setInfraredData("4+Infrared+O:-1"); // no obstacle
+        iot.handleData();
+        assertEquals("SAFE", iot.getCurrentState().toString());
+        iot.setInfraredData("4+Infrared+O:1000"); // far obstacle
+        iot.handleData();
+        assertEquals("SAFE", iot.getCurrentState().toString());
+        iot.setInfraredData("4+Infrared+O:500"); // near obstacle
+        iot.handleData();
+        assertEquals("WARNING", iot.getCurrentState().toString());
+        iot.setInfraredData("4+Infrared+O:100"); // too close obstacle
+        iot.handleData();
+        assertEquals("DANGER", iot.getCurrentState().toString());
+    }
+
+    /**
+     * Tests barrier crossing warning.
+     */
+    @Test
+    public void testWeight() {
+        IoT iot = new IoT();
+        iot.setCurrentState(3); // 3 represents safe state
+        iot.setWeightData("5+Weight+L:S"); // closed barrier
+        iot.handleData();
+        assertEquals("SAFE", iot.getCurrentState().toString());
+        iot.setWeightData("5+Weight+L:F"); // failed to closed barrier
+        iot.handleData();
+        assertEquals("DANGER", iot.getCurrentState().toString());
     }
 
 }
