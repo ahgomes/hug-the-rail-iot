@@ -46,6 +46,7 @@ public class IoT {
     private int precipitateIntensity;
     private double obstacleDist;
     private int barrDown;
+    private int barrDist;
     private double curveDeg;
     private double acceleration;
     private ArrayList<Double> instantSpeeds;
@@ -72,6 +73,7 @@ public class IoT {
         this.precipitateIntensity = -1;
         this.obstacleDist = -1;
         this.barrDown = -1;
+        this.barrDist = -1;
         this.curveDeg = 0;
         this.acceleration = 0;
         this.instantSpeeds = new ArrayList<Double>();
@@ -195,7 +197,7 @@ public class IoT {
                 mainPanel = this;
                 setSize(width, height);
                 setFocusable(true);
-                timer = new Timer(1000, this);
+                timer = new Timer(500, this);
                 timer.start();
                 loginPane = createLoginPane();
                 this.add(loginPane);
@@ -523,7 +525,6 @@ public class IoT {
 	    public void parse(Sensor sensor) { // data format ID+NAME+TYPE:DATA
             String[] tokens = sensor.data.split("[+:]");
             if (tokens.length <= 3) {
-                //System.out.println("Error: S-" + sensor.id + " " + sensor.name + " missing data.");
                 return;
             }
             switch (tokens[2]) {
@@ -542,7 +543,17 @@ public class IoT {
                     obstacleDist = Double.parseDouble(tokens[3]);
                     break;
                 case "L" :
-                    barrDown = tokens[3].equals("S") ? 1 : 0;
+                    String t = tokens[3];
+                    if (t.equals("S") || t.equals("F")) {
+                        barrDist = 0;
+                        barrDown = t.equals("S") ? 1 : 0;
+                    } else if (t.equals("M")) {
+                        barrDist = 1;
+                        barrDown = -1;
+                    } else {
+                        barrDist = -1;
+                        barrDown = -1;
+                    }
                     break;
                 case "S" :
                     instantSpeeds.add(
@@ -814,8 +825,7 @@ public class IoT {
      * @return int duration
      */
     public int soundHornDur() {
-        int hornDuration = 10;
-        return hornDuration;
+        return 5 * (1 + barrDist * 2);
     }
 
     /**
@@ -891,7 +901,11 @@ public class IoT {
         html[11] = warnMsg[analizedData[5]];
 
         // Potential Wheel Slippage
-        html[13] = (curveDeg > 8 ? "Sharp curve": "");
+        if (analizedData[6] > 0)
+            html[13] = "High RPM";
+        else if (curveDeg > 8)
+            html[13] = "Sharp curve";
+        else html[13] = "None";
         html[15] = warnMsg[Math.max(analizedData[6], analizedData[1])];
 
         // Obstable Dectection

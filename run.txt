@@ -11,14 +11,561 @@
     # L:[S|F]
 # All other text gets printed to console
 
-Train Run 1
+** TRAIN RUN **
 STARTS
-Moving...
-> 0+Weather+W:50;R>5
-> 1+Inclinometer+I:30
+> 0+Weather+W:50;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:100
+> 3+Accelerometer+A:1
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Moving ...
+> 0+Weather+W:50.2;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:150
+> 3+Accelerometer+A:3.7
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Speeding up
+> 0+Weather+W:50.2;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:200
+> 3+Accelerometer+A:4.9
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:50.3;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:250
+> 3+Accelerometer+A:5.6
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:50.3;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:300
+> 3+Accelerometer+A:6
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:50.3;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:400
+> 3+Accelerometer+A:7.4
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:50.6;D
+> 1+Inclinometer+I:1
 > 2+Speed+S:500
+> 3+Accelerometer+A:8.4
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:50.5;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:600
+> 3+Accelerometer+A:8.4
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Applied brakes to counter high rpm
+> 0+Weather+W:50.5;D
+> 1+Inclinometer+I:2
+> 2+Speed+S:550
+> 3+Accelerometer+A:7.9
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:50.5;D
+> 1+Inclinometer+I:1
+> 2+Speed+S:540
+> 3+Accelerometer+A:6.5
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Stabilized
+> 0+Weather+W:50.4;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:540
+> 3+Accelerometer+A:5.6
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Moving ...
+> 0+Weather+W:49.9;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.6
+> 3+Accelerometer+A:5
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Approaching barrier crossing
+1 mile away
+> 0+Weather+W:49.7;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.4
+> 3+Accelerometer+A:4.3
+> 4+Infrared+O:-1
+> 5+Weight+L:M
+...
+> 0+Weather+W:49.8;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.3
+> 3+Accelerometer+A:3.6
+> 4+Infrared+O:-1
+> 5+Weight+L:M
+Sounds Horn
+> 0+Weather+W:49.8;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.3
+> 3+Accelerometer+A:2.0
+> 4+Infrared+O:-1
+> 5+Weight+L:M
+Continues ...
+> 0+Weather+W:50.3;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.3
+> 3+Accelerometer+A:0.6
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:50.3;D
+> 1+Inclinometer+I:3
+> 2+Speed+S:540.3
+> 3+Accelerometer+A:-0.8
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Sharp turn approaching
+> 0+Weather+W:50.6;D
+> 1+Inclinometer+I:5
+> 2+Speed+S:540.3
+> 3+Accelerometer+A:-0.2
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:50.4;D
+> 1+Inclinometer+I:10
+> 2+Speed+S:540.2
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Slows down
+> 0+Weather+W:50.4;D
+> 1+Inclinometer+I:10
+> 2+Speed+S:520.5
+> 3+Accelerometer+A:-0.2
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Passes curve successfully
+> 0+Weather+W:50.4;D
+> 1+Inclinometer+I:5
+> 2+Speed+S:520.5
+> 3+Accelerometer+A:-0.3
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Regains speed
+> 0+Weather+W:50.6;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.5
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Approaching barrier crossing
+> 0+Weather+W:50.6;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.5
 > 3+Accelerometer+A:0
 > 4+Infrared+O:-1
 > 5+Weight+L:S
-Still moving ...
+Passing through crossing
+Barrier dropped successfully
+> 0+Weather+W:50.3;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.5
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:S
+Continues ...
+> 0+Weather+W:50.0;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.5
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:49.1;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.3
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Obstacle enters path
+> 0+Weather+W:49.1;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.3
+> 3+Accelerometer+A:0
+> 4+Infrared+O:1000
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:48.7;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.3
+> 3+Accelerometer+A:0
+> 4+Infrared+O:700
+> 5+Weight+L:NaN
+Nearing obstacle
+> 0+Weather+W:48.5;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.3
+> 3+Accelerometer+A:0.2
+> 4+Infrared+O:490
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:48.7;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.3
+> 3+Accelerometer+A:0.2
+> 4+Infrared+O:400
+> 5+Weight+L:NaN
+Applies brake
+> 0+Weather+W:48.3;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:500.2
+> 3+Accelerometer+A:-0.5
+> 4+Infrared+O:280
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:48.7;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:490.2
+> 3+Accelerometer+A:-0.7
+> 4+Infrared+O:200
+> 5+Weight+L:NaN
+Obstacle is moving
+> 0+Weather+W:48.7;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:490.2
+> 3+Accelerometer+A:-0.7
+> 4+Infrared+O:210
+> 5+Weight+L:NaN
+Obstacle had enough time to move out of the way
+> 0+Weather+W:48.7;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:490.2
+> 3+Accelerometer+A:-0.7
+> 4+Infrared+O:300
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:48.7;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:500.2
+> 3+Accelerometer+A:-0.5
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Regaining speed
+> 0+Weather+W:48.7;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.2
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Moving ...
+> 0+Weather+W:47.4;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.2
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:47.3;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.2
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Starts to rain
+> 0+Weather+W:46.0;R>1
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.2
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:45.4;R>1
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.2
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Moving ...
+> 0+Weather+W:43.4;R>2
+> 1+Inclinometer+I:1
+> 2+Speed+S:540.2
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Rain intensifies
+> 0+Weather+W:40.4;R>3
+> 1+Inclinometer+I:2
+> 2+Speed+S:540.4
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:40.1;R>3
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.4
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Moving ...
+> 0+Weather+W:36.5;R>3
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.4
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Getting colder
+> 0+Weather+W:35.3;R>3
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.4
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:35.1;R>3
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.4
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Starts snowing
+> 0+Weather+W:33.1;S>3
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.4
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:33.4;S>4
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.4
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Slowing down
+> 0+Weather+W:33.0;S>4
+> 1+Inclinometer+I:0
+> 2+Speed+S:520.4
+> 3+Accelerometer+A:-0.2
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:33.0;S>4
+> 1+Inclinometer+I:0
+> 2+Speed+S:500.4
+> 3+Accelerometer+A:-0.5
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:33.0;S>4
+> 1+Inclinometer+I:0
+> 2+Speed+S:500.4
+> 3+Accelerometer+A:-0.2
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Moving ...
+> 0+Weather+W:32.0;S>3
+> 1+Inclinometer+I:1
+> 2+Speed+S:500.4
+> 3+Accelerometer+A:-0.1
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:32.0;S>2
+> 1+Inclinometer+I:3
+> 2+Speed+S:500.4
+> 3+Accelerometer+A:0.3
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Stabilized at slower speed
+> 0+Weather+W:33.5;S>2
+> 1+Inclinometer+I:2
+> 2+Speed+S:500.4
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:33.5;S>2
+> 1+Inclinometer+I:1
+> 2+Speed+S:500.4
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Continues to snow
+> 0+Weather+W:33.3;S>2
+> 1+Inclinometer+I:0
+> 2+Speed+S:500.4
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:33.3;S>1
+> 1+Inclinometer+I:0
+> 2+Speed+S:500.4
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Snow starts to clear
+> 0+Weather+W:34.3;S>1
+> 1+Inclinometer+I:0
+> 2+Speed+S:500.4
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:35.3;S>1
+> 1+Inclinometer+I:0
+> 2+Speed+S:500.4
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Weather back to sunny
+> 0+Weather+W:35.5;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:500.4
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Moving ...
+> 0+Weather+W:35.5;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:500.7
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Speeding up
+> 0+Weather+W:35.5;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:520.7
+> 3+Accelerometer+A:0.3
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:35.5;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:540.7
+> 3+Accelerometer+A:0.6
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Moving ...
+> 0+Weather+W:35.5;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:545.7
+> 3+Accelerometer+A:0.7
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:35.5;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:545.7
+> 3+Accelerometer+A:0.7
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:35.9;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:545.7
+> 3+Accelerometer+A:0.7
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:37.2;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:545.7
+> 3+Accelerometer+A:0.7
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Approaching station
+> 0+Weather+W:37.2;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:545.7
+> 3+Accelerometer+A:0.7
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Applies brakes
+> 0+Weather+W:37.2;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:500.7
+> 3+Accelerometer+A:0
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:37.2;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:450
+> 3+Accelerometer+A:-0.8
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Slowing down ...
+> 0+Weather+W:39.2;D
+> 1+Inclinometer+I:2
+> 2+Speed+S:400
+> 3+Accelerometer+A:-1.8
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:38.7;D
+> 1+Inclinometer+I:7
+> 2+Speed+S:350
+> 3+Accelerometer+A:-2.8
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Turning into station
+> 0+Weather+W:38.7;D
+> 1+Inclinometer+I:9
+> 2+Speed+S:300
+> 3+Accelerometer+A:-3.7
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Moving ...
+> 0+Weather+W:38.7;D
+> 1+Inclinometer+I:9
+> 2+Speed+S:250
+> 3+Accelerometer+A:-4.3
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Slowing down ...
+> 0+Weather+W:38.7;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:200
+> 3+Accelerometer+A:-5.1
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:38.7;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:150
+> 3+Accelerometer+A:-5.8
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:39.5;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:100
+> 3+Accelerometer+A:-6.6
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+Nearing platform
+> 0+Weather+W:40.3;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:50
+> 3+Accelerometer+A:-6.7
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
+...
+> 0+Weather+W:42.6;D
+> 1+Inclinometer+I:0
+> 2+Speed+S:0
+> 3+Accelerometer+A:-6.7
+> 4+Infrared+O:-1
+> 5+Weight+L:NaN
 STOPS
+** SUCCESSFUL RUN **
