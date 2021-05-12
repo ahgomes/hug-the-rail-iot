@@ -81,7 +81,8 @@ public class IoT {
 
     public static void main(String[] args) {
         // read in isntructions file
-        readRun();
+        if (args.length > 0)
+            readRun(args[0]);
 
         // Start IoT engine
         IoT iot = new IoT();
@@ -92,9 +93,9 @@ public class IoT {
     /**
      * Reads in the instructions for the running of IoT from run.txt.
      */
-    public static void readRun() {
+    public static void readRun(String fpath) {
         try {
-            BufferedReader br = new BufferedReader(new FileReader("run.txt"));
+            BufferedReader br = new BufferedReader(new FileReader(fpath));
             String line;
             while ((line = br.readLine()) != null) {
                 String text = line.split("#")[0].trim();
@@ -197,7 +198,7 @@ public class IoT {
                 mainPanel = this;
                 setSize(width, height);
                 setFocusable(true);
-                timer = new Timer(500, this);
+                timer = new Timer(1000, this);
                 timer.start();
                 loginPane = createLoginPane();
                 this.add(loginPane);
@@ -848,7 +849,8 @@ public class IoT {
         int[] analizedData = handleData();
 
         // Log warning
-        log.write(currentState.toString(), true);
+        if (currentState == State.WARNING || currentState == State.DANGER)
+            log.write(currentState.toString(), true);
 
         int len = analizedData.length;
         for (int i = 0; i < len; i++) {

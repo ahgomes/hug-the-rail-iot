@@ -6,9 +6,9 @@
     # W:[-50..150];[D | [ [R|S]>[0..5] ] ]
     # I:[0..180]
     # S:[0..2000]
-    # A:[-2..15]
+    # A:[-15..15]
     # O:[0..1000]
-    # L:[S|F]
+    # L:[S|F|M]
 # All other text gets printed to console
 
 ** TRAIN RUN **
@@ -201,69 +201,69 @@ Obstacle enters path
 > 1+Inclinometer+I:0
 > 2+Speed+S:540.3
 > 3+Accelerometer+A:0
-> 4+Infrared+O:1000
+> 4+Infrared+O:600
 > 5+Weight+L:NaN
 ...
 > 0+Weather+W:48.7;D
 > 1+Inclinometer+I:0
 > 2+Speed+S:540.3
 > 3+Accelerometer+A:0
-> 4+Infrared+O:700
+> 4+Infrared+O:550
 > 5+Weight+L:NaN
 Nearing obstacle
 > 0+Weather+W:48.5;D
 > 1+Inclinometer+I:0
 > 2+Speed+S:540.3
 > 3+Accelerometer+A:0.2
-> 4+Infrared+O:490
+> 4+Infrared+O:530
 > 5+Weight+L:NaN
 ...
 > 0+Weather+W:48.7;D
 > 1+Inclinometer+I:0
 > 2+Speed+S:540.3
 > 3+Accelerometer+A:0.2
-> 4+Infrared+O:400
+> 4+Infrared+O:490
 > 5+Weight+L:NaN
 Applies brake
 > 0+Weather+W:48.3;D
 > 1+Inclinometer+I:0
 > 2+Speed+S:500.2
 > 3+Accelerometer+A:-0.5
-> 4+Infrared+O:280
+> 4+Infrared+O:450
 > 5+Weight+L:NaN
 ...
 > 0+Weather+W:48.7;D
 > 1+Inclinometer+I:0
-> 2+Speed+S:490.2
+> 2+Speed+S:490
 > 3+Accelerometer+A:-0.7
-> 4+Infrared+O:200
+> 4+Infrared+O:425
 > 5+Weight+L:NaN
 Obstacle is moving
 > 0+Weather+W:48.7;D
 > 1+Inclinometer+I:0
-> 2+Speed+S:490.2
+> 2+Speed+S:480
 > 3+Accelerometer+A:-0.7
-> 4+Infrared+O:210
+> 4+Infrared+O:400
 > 5+Weight+L:NaN
 Obstacle had enough time to move out of the way
 > 0+Weather+W:48.7;D
 > 1+Inclinometer+I:0
-> 2+Speed+S:490.2
+> 2+Speed+S:480
 > 3+Accelerometer+A:-0.7
-> 4+Infrared+O:300
+> 4+Infrared+O:375
 > 5+Weight+L:NaN
 ...
 > 0+Weather+W:48.7;D
 > 1+Inclinometer+I:0
-> 2+Speed+S:500.2
-> 3+Accelerometer+A:-0.5
+> 2+Speed+S:490
+> 3+Accelerometer+A:-0.7
 > 4+Infrared+O:-1
 > 5+Weight+L:NaN
 Regaining speed
 > 0+Weather+W:48.7;D
 > 1+Inclinometer+I:0
-> 2+Speed+S:540.2
-> 3+Accelerometer+A:0
+> 2+Speed+S:520
+> 3+Accelerometer+A:-0.3
 > 4+Infrared+O:-1
 > 5+Weight+L:NaN
 Moving ...
@@ -291,42 +291,42 @@ Starts to rain
 > 0+Weather+W:45.4;R>1
 > 1+Inclinometer+I:0
 > 2+Speed+S:540.2
-> 3+Accelerometer+A:0
+> 3+Accelerometer+A:0.6
 > 4+Infrared+O:-1
 > 5+Weight+L:NaN
 Moving ...
 > 0+Weather+W:43.4;R>2
 > 1+Inclinometer+I:1
 > 2+Speed+S:540.2
-> 3+Accelerometer+A:0
+> 3+Accelerometer+A:0.7
 > 4+Infrared+O:-1
 > 5+Weight+L:NaN
 Rain intensifies
 > 0+Weather+W:40.4;R>3
 > 1+Inclinometer+I:2
 > 2+Speed+S:540.4
-> 3+Accelerometer+A:0
+> 3+Accelerometer+A:0.8
 > 4+Infrared+O:-1
 > 5+Weight+L:NaN
 ...
 > 0+Weather+W:40.1;R>3
 > 1+Inclinometer+I:0
 > 2+Speed+S:540.4
-> 3+Accelerometer+A:0
+> 3+Accelerometer+A:0.7
 > 4+Infrared+O:-1
 > 5+Weight+L:NaN
 Moving ...
 > 0+Weather+W:36.5;R>3
 > 1+Inclinometer+I:0
 > 2+Speed+S:540.4
-> 3+Accelerometer+A:0
+> 3+Accelerometer+A:0.6
 > 4+Infrared+O:-1
 > 5+Weight+L:NaN
 Getting colder
 > 0+Weather+W:35.3;R>3
 > 1+Inclinometer+I:0
 > 2+Speed+S:540.4
-> 3+Accelerometer+A:0
+> 3+Accelerometer+A:0.3
 > 4+Infrared+O:-1
 > 5+Weight+L:NaN
 ...
@@ -354,70 +354,70 @@ Slowing down
 > 0+Weather+W:33.0;S>4
 > 1+Inclinometer+I:0
 > 2+Speed+S:520.4
-> 3+Accelerometer+A:-0.2
+> 3+Accelerometer+A:-0.3
 > 4+Infrared+O:-1
 > 5+Weight+L:NaN
 ...
 > 0+Weather+W:33.0;S>4
 > 1+Inclinometer+I:0
 > 2+Speed+S:500.4
-> 3+Accelerometer+A:-0.5
+> 3+Accelerometer+A:-0.6
 > 4+Infrared+O:-1
 > 5+Weight+L:NaN
 ...
 > 0+Weather+W:33.0;S>4
 > 1+Inclinometer+I:0
 > 2+Speed+S:500.4
-> 3+Accelerometer+A:-0.2
+> 3+Accelerometer+A:-0.6
 > 4+Infrared+O:-1
 > 5+Weight+L:NaN
 Moving ...
 > 0+Weather+W:32.0;S>3
 > 1+Inclinometer+I:1
 > 2+Speed+S:500.4
-> 3+Accelerometer+A:-0.1
+> 3+Accelerometer+A:-0.6
 > 4+Infrared+O:-1
 > 5+Weight+L:NaN
 ...
 > 0+Weather+W:32.0;S>2
 > 1+Inclinometer+I:3
 > 2+Speed+S:500.4
-> 3+Accelerometer+A:0.3
+> 3+Accelerometer+A:-0.6
 > 4+Infrared+O:-1
 > 5+Weight+L:NaN
 Stabilized at slower speed
 > 0+Weather+W:33.5;S>2
 > 1+Inclinometer+I:2
 > 2+Speed+S:500.4
-> 3+Accelerometer+A:0
+> 3+Accelerometer+A:-0.6
 > 4+Infrared+O:-1
 > 5+Weight+L:NaN
 ...
 > 0+Weather+W:33.5;S>2
 > 1+Inclinometer+I:1
 > 2+Speed+S:500.4
-> 3+Accelerometer+A:0
+> 3+Accelerometer+A:-0.6
 > 4+Infrared+O:-1
 > 5+Weight+L:NaN
 Continues to snow
 > 0+Weather+W:33.3;S>2
 > 1+Inclinometer+I:0
 > 2+Speed+S:500.4
-> 3+Accelerometer+A:0
+> 3+Accelerometer+A:-0.6
 > 4+Infrared+O:-1
 > 5+Weight+L:NaN
 ...
 > 0+Weather+W:33.3;S>1
 > 1+Inclinometer+I:0
 > 2+Speed+S:500.4
-> 3+Accelerometer+A:0
+> 3+Accelerometer+A:-0.6
 > 4+Infrared+O:-1
 > 5+Weight+L:NaN
 Snow starts to clear
 > 0+Weather+W:34.3;S>1
 > 1+Inclinometer+I:0
 > 2+Speed+S:500.4
-> 3+Accelerometer+A:0
+> 3+Accelerometer+A:-0.3
 > 4+Infrared+O:-1
 > 5+Weight+L:NaN
 ...

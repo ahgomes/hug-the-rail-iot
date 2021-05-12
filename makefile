@@ -25,4 +25,4 @@ test:
 	java $(JFLAGS) IoTTest.java
 
 clean:
-	$(RM) *.class
+	$(RM) *.class *.log
